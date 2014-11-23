@@ -13,30 +13,28 @@ namespace Tela.Classes
         private MyPanel _Panel;
         private bool _Show;
         private Image _Original;
-        private float _Opacity = 1;
+        private float _Opacity;
 
         public TimerPiscar(MyPanel panel)
         {            
             this._Panel = panel;
+            this._Timer = new Timer(100);
+            this._Timer.Elapsed += new ElapsedEventHandler(_timer_Elapsed);
         }
        
         public void Start()
         {
             _Original = _Panel.BackgroundImage;
-            _Timer = new Timer(100);
-            _Timer.Elapsed += new ElapsedEventHandler(_timer_Elapsed);
+            _Opacity = 1;
             _Timer.Enabled = true;
             _Timer.Start();
         }
 
         public void Stop()
         {
-            if (_Timer != null)
-            {
-                _Timer.Stop();
-                _Timer.Enabled = false;
-                _Panel.BackgroundImage = _Original;
-            }
+            _Timer.Stop();
+            _Timer.Enabled = false;
+            _Panel.BackgroundImage = _Original;
         }
 
         private void _timer_Elapsed(object sender, ElapsedEventArgs e)

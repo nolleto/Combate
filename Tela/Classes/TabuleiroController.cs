@@ -190,7 +190,7 @@ namespace Tela.Classes
             foreach (var posicaoValida in posicoes)
             {
                 MyPanel panel = _PanelController.GetPanelTabuleiro(posicaoValida);
-                panel.Piscar();
+                panel.Animar();
             }
         }
 
@@ -200,7 +200,7 @@ namespace Tela.Classes
             foreach (var posicaoValida in posicoes)
             {
                 MyPanel panel = _PanelController.GetPanelTabuleiro(posicaoValida);
-                panel.PararDePiscar();
+                panel.Desanimar();
             }
         }
 
@@ -225,7 +225,7 @@ namespace Tela.Classes
                 {
                     _PanelsPodeMover.Add(panel);
                     //panel.BackColor = _BackgroundPosicionar;
-                    panel.Piscar();
+                    panel.Animar();
                 }
             }
         }
@@ -235,7 +235,7 @@ namespace Tela.Classes
             foreach (var panel in _PanelsPodeMover)
             {
                 //panel.BackColor = _Background;
-                panel.PararDePiscar();
+                panel.Desanimar();
             }
         }
 

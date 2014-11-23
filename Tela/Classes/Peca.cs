@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using Tela.Enums;
-using Tela.Aributos;
+using Tela.Atributos;
 
 namespace Tela.Classes
 {

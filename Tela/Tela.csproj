@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Atributos\PecaAttr.cs" />
     <Compile Include="Borda.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -65,10 +66,10 @@
     <Compile Include="Classes\SerialController.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Classes\SerialPacote.cs" />
     <Compile Include="Classes\TabuleiroController.cs" />
     <Compile Include="Classes\TimerPiscar.cs" />
     <Compile Include="Classes\Validacao.cs" />
-    <Compile Include="Enums\Atributos.cs" />
     <Compile Include="Enums\EnumUtil.cs" />
     <Compile Include="Enums\PecaEnum.cs" />
     <Compile Include="Principal.cs">
@@ -110,6 +111,8 @@
     <Content Include="branco.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\backgroundblue.png" />
+    <Content Include="Images\backgroundgreen.png" />
     <Content Include="Images\Bomb.png" />
     <Content Include="Images\Captain.png" />
     <Content Include="Images\Colonel.png" />

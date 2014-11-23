@@ -27,7 +27,7 @@ namespace Tela.Classes
             this._Agua = agua;            
         }
 
-        public void Piscar()
+        public void Animar()
         {
             if (!_Agua)
             {
@@ -35,7 +35,7 @@ namespace Tela.Classes
             }
         }
 
-        public void PararDePiscar()
+        public void Desanimar()
         {
             _Timer.Stop();
         }
