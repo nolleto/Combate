@@ -13,19 +13,44 @@ namespace Tela.Classes
     {
         private int _Tamanho;
         private int _Quadrados;
+        private bool _MinhaRodada = false;
+
         private Color _Background;
+        private Color _BackgroundPosicionar = Color.LightGreen;
+        private Color _BackgroundInimigo = Color.Red;        
 
         private PanelController _PanelController;
                    
         private PosicaoController _Amigo = new PosicaoController();
         private PosicaoController _Inimigo = new PosicaoController();
+
+        private PosicaoMovimentosController _Movimentos;
+
         private bool _Posicionar = true;
 
-        private Panel _PosicionamentoPanel;
+        private MyPanel _PosicionamentoPanel;
+        private MyPanel _MovimentoPanel;
 
-        private delegate void _PanelClick();
+        private List<MyPanel> _PanelsPodeMover = new List<MyPanel>();
+
+        private Posicao[] _Aguas = new Posicao[] {
+            new Posicao(2, 4),
+            new Posicao(3, 4),
+            new Posicao(6, 4),
+            new Posicao(7, 4),
+            new Posicao(2, 5),
+            new Posicao(3, 5),
+            new Posicao(6, 5),
+            new Posicao(7, 5),
+        };
 
         public Form Form { get; set; }
+
+        public int Quadrados { get { return _Quadrados; } }
+
+        public PosicaoController Amigo { get { return _Amigo; } }
+        public PosicaoController Inimigo { get { return _Inimigo; } }
+        public Posicao[] Obstaculos { get { return _Aguas; } }
         
         public TabuleiroController(Form form, int tamQuadrado, int quantQuadrado, Color background)
         {
@@ -37,6 +62,8 @@ namespace Tela.Classes
             this._PanelController = new PanelController(form, tamQuadrado, quantQuadrado, background);
             this.Form.Controls.Add(this._PanelController.PanelTabuleiroParent);
             this.Form.Controls.Add(this._PanelController.PanelPosicionarParent);
+            this._Movimentos = new PosicaoMovimentosController(this);
+            DesenharTabulerio();
         }
 
         public void Desenhar()
@@ -45,36 +72,72 @@ namespace Tela.Classes
             {
                 DesenharPosicionamento();
             }
-            DesenharTabulerio();
+            AtualizarTabuleiro();
         }
 
         private void DesenharTabulerio()
         {
             LimparTabuleiro();
             var posicoes = _Amigo.Posicoes;
-           
-            for (var y = 0; y < _Quadrados; y++)
+            
+            for (var x = 0; x < _Quadrados; x++)
             {
-                for (var x = 0; x < _Quadrados; x++)
-                {
-                    var posicao = posicoes.Where(po => po.PosX == x && po.PosY == y).FirstOrDefault();
-                    var newPanel = new Panel
+                for (var y = 0; y < _Quadrados; y++)
+                {                    
+                    var newPanel = new MyPanel
                     {
-                        Location = new Point(_Tamanho * y, _Tamanho * x),
+                        Location = new Point(_Tamanho * x, _Tamanho * y),
                         Size = new Size(_Tamanho, _Tamanho),                        
                         BackgroundImageLayout = ImageLayout.Stretch,
                         BorderStyle = BorderStyle.FixedSingle,
                         BackColor = _Background
-                    };                    
-                    newPanel.Click += new EventHandler(Panel_Click);
-
-                    if (posicao != null)
+                    };
+                    if (!_Aguas.Any(p => p.X == x && p.Y == y))
                     {
-                        newPanel.BackgroundImage = posicao.Peca.Image;
-                        newPanel.BorderStyle = BorderStyle.None;
+                        newPanel.Click += new EventHandler(Panel_Click);
                     }
-
+                    else
+                    {
+                        newPanel.SetAgua(true);
+                    }
+                 
                     _PanelController.AddTabuleiroPanel(newPanel, x, y);        
+                }
+            }
+        }
+
+        private void AtualizarTabuleiro()
+        {
+            var panels = _PanelController.PanelsTabuleiro;
+            
+            for (var x = 0; x < _Quadrados; x++)
+            {
+                for (var y = 0; y < _Quadrados; y++)
+                {
+                    var info = panels.Where(p => p.Posicao.X == x && p.Posicao.Y == y).FirstOrDefault();
+
+                    if (info.Inimigo)
+                    {
+                        info.Panel.BackgroundImage = null;
+                        info.Panel.BorderStyle = BorderStyle.None;
+                        info.Panel.BackColor = Color.Black;
+                        info.Panel.Enabled = false;
+                    }
+                    else if (info.Peca != null)
+                    {
+                        info.Panel.BackgroundImage = info.Peca.Image;
+                        info.Panel.BorderStyle = BorderStyle.None;
+                    }
+                    else if (_Aguas.Any(p => p.X == x && p.Y == y))
+                    {
+                        info.Panel.BackgroundImage = Properties.Resources.backgroundblue;
+                        info.Panel.BorderStyle = BorderStyle.FixedSingle;
+                    }
+                    else
+                    {
+                        info.Panel.BackgroundImage = Properties.Resources.backgroundgreen;
+                        info.Panel.BorderStyle = BorderStyle.FixedSingle;
+                    }
                 }
             }
         }
@@ -82,12 +145,12 @@ namespace Tela.Classes
         private void DesenharPosicionamento()
         {
             LimparPosicionar();
-            var pecas = _Amigo.APosicionar;                       
+            var pecas = _Amigo.APosicionar;
             
             for (int i = 0; i < pecas.Count(); i++)
             {
                 var peca = pecas.ElementAt(i);
-                var panel = new Panel()
+                var panel = new MyPanel()
                 {
                     Size = new Size(_Tamanho, _Tamanho),
                     BackgroundImageLayout = ImageLayout.Stretch,
@@ -100,21 +163,79 @@ namespace Tela.Classes
             }
         }
 
+        /*private void AtualizarPosicionamento()
+        {
+            bool reposicionar = false;
+            for (int i = 0; i < _PanelController.PanelPosicionarParent.Controls.Count; i++)
+            {
+                var obj = _PanelController.PanelPosicionarParent.Controls[i];
+                if (obj is MyPanel)
+                {
+                    MyPanel panel = (MyPanel)obj;                    
+                    if (!reposicionar && !_PanelController.ExistePecaNoPosicionamento(panel))
+                    {
+                        reposicionar = true;
+                    }
+                    if (reposicionar)
+                    {
+                        MyPanel.loca
+                    }
+                }
+            }
+        }*/
+
         private void MostrarOndePosicionar()
         {
-            foreach (var posicaoValida in _Amigo.PosicoesPosicionamento)
+            var posicoes = _Amigo.PosicoesPosicionamento;
+            foreach (var posicaoValida in posicoes)
             {
-                Panel panel = _PanelController.GetPanelTabuleiro(posicaoValida);
-                panel.BackColor = Color.Green;                           
+                MyPanel panel = _PanelController.GetPanelTabuleiro(posicaoValida);
+                panel.Piscar();
             }
         }
 
         private void EsconderOndePosicionar()
         {
-            foreach (var posicaoValida in _Amigo.PosicoesPosicionamento)
+            var posicoes = _Amigo.PosicoesPosicionamento;
+            foreach (var posicaoValida in posicoes)
             {
-                Panel panel = _PanelController.GetPanelTabuleiro(posicaoValida);
-                panel.BackColor = _Background;
+                MyPanel panel = _PanelController.GetPanelTabuleiro(posicaoValida);
+                panel.PararDePiscar();
+            }
+        }
+
+        private void MostrarOndeMover(_PanelPosicionamento info)
+        {
+            _PanelsPodeMover = new List<MyPanel>();
+            var posicoes = _Movimentos.GetPosicoesMovimento(info);
+
+            foreach (var posicao in posicoes)
+            {
+                var panel = _PanelController.GetPanelTabuleiro(posicao);
+
+                if (posicao.Amigo)
+                {
+                    panel.BackColor = _Background;
+                }
+                else if (posicao.Inimigo)
+                {
+                    panel.BackColor = _BackgroundInimigo;
+                }
+                else if (posicao.Move)
+                {
+                    _PanelsPodeMover.Add(panel);
+                    //panel.BackColor = _BackgroundPosicionar;
+                    panel.Piscar();
+                }
+            }
+        }
+        
+        private void EsconderOndeMover(_PanelPosicionamento info)
+        {
+            foreach (var panel in _PanelsPodeMover)
+            {
+                //panel.BackColor = _Background;
+                panel.PararDePiscar();
             }
         }
 
@@ -130,18 +251,20 @@ namespace Tela.Classes
 
         private void Panel_Click(object sender, EventArgs e)
         {
-            var panel = (Panel)sender;
+            var panel = (MyPanel)sender;            
             if (_Posicionar)
             {
                 if (_Amigo.Posicionando)
                 {
-                    var p = _PanelController.GetPosicaoTabuleiro(panel);
-                    var retorno = _Amigo.SetPeca(_Amigo.PecaPosicionando, p.X, p.Y);
+                    var info = _PanelController.GetTabuleiroInfoByGuid(panel.Guid);
+                    var retorno = _Amigo.SetPosicaoPeca(_Amigo.PecaPosicionando, info.Posicao.X, info.Posicao.Y);
                     if (retorno.Sucesso)
                     {
-                        _Amigo.TerminarPosicionamento();
+                        EsconderOndePosicionar();
+                        _PanelController.SetPecaTabuleiro(panel.Guid, _Amigo.PecaPosicionando);
+                        _Amigo.TerminarPosicionamento(info.Posicao);                        
                         _Posicionar = _Amigo.FaltaPosicionar;
-
+                        
                         Desenhar();
                     }
                     else
@@ -150,16 +273,53 @@ namespace Tela.Classes
                     }
                 }
             }
-            else
+            else if (_MinhaRodada)
             {
-                panel.BorderStyle = BorderStyle.FixedSingle;
+                var infoNova = _PanelController.GetPecaMovimentoInfo(panel.Guid);                
+                if (!_Amigo.Movimentando && infoNova.Peca != null )
+                {
+                    if (infoNova.Peca.Anda)
+                    {
+                        _MovimentoPanel = panel;
+                        _Amigo.IniciarMovimento(infoNova.Peca);
+                        panel.BorderStyle = BorderStyle.FixedSingle;
+                        MostrarOndeMover(infoNova);
+                    }
+                }
+                else if (infoNova.Peca != null)
+                {
+                    _Amigo.CancelarMovimento();
+                    _MovimentoPanel.BorderStyle = BorderStyle.None;
+                    EsconderOndeMover(infoNova);
+                }
+                else if (_MovimentoPanel != null)
+                {
+                    var infoAntiga = _PanelController.GetTabuleiroInfoByGuid(_MovimentoPanel.Guid);
+                    var posicoes = _Movimentos.GetPosicoesMovimento(infoAntiga);
+                    var retorno = _Amigo.SetPosicaoPecaMovimento(infoAntiga, infoNova.Posicao.X, infoNova.Posicao.Y, posicoes);
+                    if (retorno.Sucesso)
+                    {
+                        _MovimentoPanel.BorderStyle = BorderStyle.None;
+                        _MovimentoPanel = null;
+                        _PanelController.MovimentarPeca(infoAntiga, infoNova);
+                        _Amigo.TerminarMovimento(infoAntiga.Posicao);
+                        EsconderOndeMover(infoNova);
+
+                        AtualizarTabuleiro();
+                        TerminarRodada();
+                    }
+                    else
+                    {
+                        MessageBox.Show(retorno.Mensagem);
+                    }
+                }
             }
         }
 
         private void Escolha_Click(object sender, EventArgs e)
         {
-            var panel = (Panel)sender;
-            var peca = _PanelController.GetPecaPosicionamento(panel);
+            var panel = (MyPanel)sender;
+            var peca = _PanelController.GetPecaPosicionamento(panel.Guid);
 
             if (!_Amigo.Posicionando)
             {
@@ -168,7 +328,7 @@ namespace Tela.Classes
                 panel.BorderStyle = BorderStyle.FixedSingle;
                 MostrarOndePosicionar();
             }
-            else if (_Amigo.PecaPosicionando.Guid == peca.Guid)
+            else
             {                
                 _Amigo.CancelarPosicionamento();
                 _PosicionamentoPanel.BorderStyle = BorderStyle.None;
@@ -179,18 +339,20 @@ namespace Tela.Classes
         public void PosicionarTeste()
         {
             Peca peca;
-            int faltantes = _Amigo.APosicionar.Count();
+            int faltantes = _Amigo.APosicionar.Count() - 1;
             for (int x = _Quadrados - 1; x >= 0; x--)
             {
                 for (int y = _Quadrados - 1; y >= 0; y--)
                 {
-                    peca = _Amigo.PecasPosicionamento.ElementAt(0);
+                    peca = _Amigo.PecasPosicionamento.ElementAt(faltantes);
                     _Amigo.IniciarPosicionamento(peca);
-                    var retorno = _Amigo.SetPeca(_Amigo.PecaPosicionando, x, y);
+                    var retorno = _Amigo.SetPosicaoPeca(_Amigo.PecaPosicionando, x, y);
                     if (retorno.Sucesso)
                     {
-                        _Amigo.TerminarPosicionamento();
-                        if (--faltantes <= 0)
+                        var info = _PanelController.GetPanelInfoTabuleiro(x, y);
+                        _PanelController.SetPecaTabuleiro(info.Panel.Guid, _Amigo.PecaPosicionando);
+                        _Amigo.TerminarPosicionamento(info.Posicao);
+                        if (--faltantes < 0)
                         {
                             x = -1;
                             break;
@@ -205,6 +367,57 @@ namespace Tela.Classes
 
             Desenhar();
             _Posicionar = _Amigo.FaltaPosicionar;
+            PosicionarInimigos();
         }
+
+        public void PosicionarInimigos(Tela.Classes.PosicaoController.PosicaoPeca[] itens = null)
+        {
+            if (itens == null)
+            {
+                
+            }
+
+            Peca peca;
+            int faltantes = _Inimigo.APosicionar.Count() - 1;
+            for (int y = 0; y < _Quadrados; y++)
+            {
+                for (int x = _Quadrados - 1; x >= 0; x--)
+                {
+                    peca = _Inimigo.PecasPosicionamento.ElementAt(faltantes);
+                    _Inimigo.IniciarPosicionamento(peca);
+                    var retorno = _Inimigo.SetPosicaoPecaInimigo(_Inimigo.PecaPosicionando, x, y);
+                    if (retorno.Sucesso)
+                    {
+                        var info = _PanelController.GetPanelInfoTabuleiro(x, y);
+                        _PanelController.SetPecaTabuleiro(info.Panel.Guid, _Inimigo.PecaPosicionando, true);
+                        _Inimigo.TerminarPosicionamento(info.Posicao);
+                        if (--faltantes < 0)
+                        {
+                            y = 999999;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        _Inimigo.CancelarPosicionamento();
+                    }
+                }
+            }
+
+            Desenhar();
+            _Posicionar = _Inimigo.FaltaPosicionar;
+        }
+
+        private void TerminarRodada()
+        {
+            //_MinhaRodada = false;
+        }
+
+        public void SetMinhaRodada()
+        {
+            _MinhaRodada = true;
+        }
+
+        
     }
 }

@@ -16,6 +16,16 @@ namespace Tela.Enums
                 .GetCustomAttributes(false)
                 .OfType<TAttribute>()
                 .SingleOrDefault();
+        }        
+    }
+
+    public static class EnumUtil
+    {
+        public static T[] GetArray<T>(this T e)
+        {
+            return Enum.GetValues(typeof(T))
+                .Cast<T>()
+                .ToArray();
         }
     }
 }

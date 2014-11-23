@@ -19,9 +19,7 @@ namespace Tela.Classes
 
         public PecasController()
         {
-            var pecas = Enum.GetValues(typeof(PecaEnum))
-                .Cast<PecaEnum>()
-                .ToArray();
+            var pecas = EnumUtil.GetArray(new PecaEnum());
 
             foreach (PecaEnum peca in pecas)
             {
@@ -40,6 +38,5 @@ namespace Tela.Classes
             _PecasVivas.Remove(peca);
             _PecasMortas.Add(peca);
         }        
-
     }
 }

@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,13 +52,21 @@
     <Compile Include="Borda.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Classes\ImageUtil.cs" />
+    <Compile Include="Classes\MyPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Classes\PanelController.cs" />
     <Compile Include="Classes\Peca.cs" />
     <Compile Include="Classes\PecasController.cs" />
     <Compile Include="Classes\Posicao.cs" />
     <Compile Include="Classes\PosicaoController.cs" />
-    <Compile Include="Classes\SerialController.cs" />
+    <Compile Include="Classes\PosicaoMovimentosController.cs" />
+    <Compile Include="Classes\SerialController.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Classes\TabuleiroController.cs" />
+    <Compile Include="Classes\TimerPiscar.cs" />
     <Compile Include="Classes\Validacao.cs" />
     <Compile Include="Enums\Atributos.cs" />
     <Compile Include="Enums\EnumUtil.cs" />
@@ -84,6 +95,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

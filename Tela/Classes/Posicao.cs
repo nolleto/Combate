@@ -10,6 +10,7 @@ namespace Tela.Classes
         public int X { get; set; }
         public int Y { get; set; }
 
+        public Posicao() { }
         public Posicao(int x, int y)
         {
             this.X = x;

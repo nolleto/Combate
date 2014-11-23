@@ -33,17 +33,11 @@ namespace Tela
         {
             _Tabuleiro = new TabuleiroController(this, 40, 10, Color.DarkGray);            
             DesenhaTabuleiro();
-
-            PortaSerial.PortName = "COM1";
-            PortaSerial.BaudRate = 9600;
-            PortaSerial.DataBits = 8;
-            PortaSerial.Parity = System.IO.Ports.Parity.None;
-            PortaSerial.StopBits = System.IO.Ports.StopBits.One;
-
+            this.PortaSerial.SetTabulerio(_Tabuleiro);
+            
             try
             {
 
-                PortaSerial.Open();
                 tmrProcuraAdversario.Interval = 1000;
                 tmrProcuraAdversario.Tick += new EventHandler(tmrProcuraAdversario_Tick);
                 tmrProcuraAdversario.Start();
@@ -198,68 +192,70 @@ namespace Tela
             Thread.Sleep(70);
 
             string Dado = PortaSerial.ReadExisting();
-            Dado = Dado.Replace("\n", "");
 
-            //#01 - JOGADOR 1 CHAMANDO - Jogador 2 responde
-            if (Dado == "JOGADOR1")
-            {
-                MinhaCor = Quadrado.Cores.Rosa;
-                IndicacaoMinhaCor.Cor = Borda.Cores.Rosa;
-                SetVisibilidade(true);
-                PortaSerial.WriteLine("JOGADOR2");
-                SetText("Vez do outro jogador");
-            }
 
-            //#02 - JOGADOR 2 RESPONDENDO - Jogador 1 inicia o jogo
-            if (Dado == "JOGADOR2")
-            {
-                MinhaCor = Quadrado.Cores.Azul;
-                IndicacaoMinhaCor.Cor = Borda.Cores.Azul;
-                SetVisibilidade(true);
-                ControleMinhaVez = true;
-                tmrProcuraAdversario.Stop();
-                SetText("Minha vez");
-            }
+            //Dado = Dado.Replace("\n", "");
 
-            //#03 - JOGADOR RECEBENDO UMA JOGADA DO OUTRO
-            if (Dado.StartsWith("JOGADA"))
-            {
-                int Pos_X = int.Parse(Dado.Split('_').ToList()[1].Split('#').ToList()[0]);
-                int Pos_Y = int.Parse(Dado.Split('_').ToList()[1].Split('#').ToList()[1]);
+            ////#01 - JOGADOR 1 CHAMANDO - Jogador 2 responde
+            //if (Dado == "JOGADOR1")
+            //{
+            //    MinhaCor = Quadrado.Cores.Rosa;
+            //    IndicacaoMinhaCor.Cor = Borda.Cores.Rosa;
+            //    SetVisibilidade(true);
+            //    PortaSerial.WriteLine("JOGADOR2");
+            //    SetText("Vez do outro jogador");
+            //}
+
+            ////#02 - JOGADOR 2 RESPONDENDO - Jogador 1 inicia o jogo
+            //if (Dado == "JOGADOR2")
+            //{
+            //    MinhaCor = Quadrado.Cores.Azul;
+            //    IndicacaoMinhaCor.Cor = Borda.Cores.Azul;
+            //    SetVisibilidade(true);
+            //    ControleMinhaVez = true;
+            //    tmrProcuraAdversario.Stop();
+            //    SetText("Minha vez");
+            //}
+
+            ////#03 - JOGADOR RECEBENDO UMA JOGADA DO OUTRO
+            //if (Dado.StartsWith("JOGADA"))
+            //{
+            //    int Pos_X = int.Parse(Dado.Split('_').ToList()[1].Split('#').ToList()[0]);
+            //    int Pos_Y = int.Parse(Dado.Split('_').ToList()[1].Split('#').ToList()[1]);
                 
-                ControleMinhaVez = true;
-                SetText("Minha vez");
+            //    ControleMinhaVez = true;
+            //    SetText("Minha vez");
 
-                Quadrado Img = (from x in this.Controls.OfType<Quadrado>()
-                                where x.Pos_X == Pos_X && x.Pos_Y == Pos_Y
-                                select x).First();
+            //    Quadrado Img = (from x in this.Controls.OfType<Quadrado>()
+            //                    where x.Pos_X == Pos_X && x.Pos_Y == Pos_Y
+            //                    select x).First();
 
-                Img.Cor = MinhaCor == Quadrado.Cores.Rosa ? Quadrado.Cores.Azul : Quadrado.Cores.Rosa;
-            }
+            //    Img.Cor = MinhaCor == Quadrado.Cores.Rosa ? Quadrado.Cores.Azul : Quadrado.Cores.Rosa;
+            //}
 
-            //#04 - JOGADOR RECEBENDO AVISO QUE PERDEU
-            if (Dado.StartsWith("GANHEI"))
-            {
-                ControleMinhaVez = false;
-                SetText("Você perdeu :(");
-                MessageBox.Show("Você perdeu :(");
-            }
+            ////#04 - JOGADOR RECEBENDO AVISO QUE PERDEU
+            //if (Dado.StartsWith("GANHEI"))
+            //{
+            //    ControleMinhaVez = false;
+            //    SetText("Você perdeu :(");
+            //    MessageBox.Show("Você perdeu :(");
+            //}
 
-            //#05 - JOGADOR AVISO QUE O OUTRO PIPOCOU
-            if (Dado.StartsWith("SAINDO"))
-            {
-                ControleMinhaVez = false;
-                Ganhou = true;
-                SetText("O outro jogador abandonou o jogo...");
-                MessageBox.Show("O outro jogador abandonou o jogo...");
-            }
+            ////#05 - JOGADOR AVISO QUE O OUTRO PIPOCOU
+            //if (Dado.StartsWith("SAINDO"))
+            //{
+            //    ControleMinhaVez = false;
+            //    Ganhou = true;
+            //    SetText("O outro jogador abandonou o jogo...");
+            //    MessageBox.Show("O outro jogador abandonou o jogo...");
+            //}
 
-            //#06 - CHAT
-            if (Dado.StartsWith("CHAT"))
-            {
-                string Mensagem = Dado.Split('|')[1];
-                SetTextChat("Adversario: " + Mensagem);
-            }
+            ////#06 - CHAT
+            //if (Dado.StartsWith("CHAT"))
+            //{
+            //    string Mensagem = Dado.Split('|')[1];
+            //    SetTextChat("Adversario: " + Mensagem);
+            //}
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -349,6 +345,11 @@ namespace Tela
         {
             ((Button)sender).Enabled = false;
             _Tabuleiro.PosicionarTeste();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            _Tabuleiro.SetMinhaRodada();
         }
     }
 }

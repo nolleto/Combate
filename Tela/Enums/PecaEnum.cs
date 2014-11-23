@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Tela.Aributos;
 
 namespace Tela.Enums
 {
     public enum PecaEnum
     {
-        [Atributos(1, 1)]        
+        [Atributos(1, 1)]
         Marshal,
         [Atributos(2, 1)]
         General,
@@ -23,7 +24,7 @@ namespace Tela.Enums
         Sergeants,
         [Atributos(8, 5)]
         Miners,
-        [Atributos(9, 8)]
+        [Atributos(9, 8, false, true)]
         Scouts,
         [Atributos(0, 1, true)]
         Spy,
