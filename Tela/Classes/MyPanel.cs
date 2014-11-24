@@ -8,13 +8,15 @@ namespace Tela.Classes
 {
     public class MyPanel : Panel
     {
-        private Guid _Guid { get; set; }
+        private Guid _Guid;
         private bool _Agua;
+        private bool _Inimigo;
 
         private TimerPiscar _Timer;
 
         public Guid Guid { get { return _Guid; } }
         public bool Agua { get { return _Agua; } }
+        public bool Inimigo { get { return _Inimigo; } }
 
         public MyPanel()
         {
@@ -27,17 +29,24 @@ namespace Tela.Classes
             this._Agua = agua;            
         }
 
+        public void SetInimigo(bool inimigo)
+        {
+            this._Inimigo = inimigo;
+        }
+
         public void Animar()
         {
             if (!_Agua)
             {
-                _Timer.Start();
+                TimerIndicador.Start(this);
+                //_Timer.Start();
             }
         }
 
         public void Desanimar()
         {
-            _Timer.Stop();
+            TimerIndicador.Stop();
+            //_Timer.Stop();
         }
     }
 }

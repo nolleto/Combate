@@ -37,10 +37,11 @@ namespace Tela.Classes
                 }
                 return bmp;
             }
-            catch (Exception ex)
+            catch (Exception)
             {                
                 return null;
             }
         } 
+
     }
 }

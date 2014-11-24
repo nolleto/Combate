@@ -8,15 +8,23 @@ namespace Tela.Classes
 {
     public class SerialPacote
     {
-        public string ToString()
+        public Peca Peca { get; set; }
+
+        public string ToJsonString()
         {
             return JsonConvert.SerializeObject(this);
         }
 
         public static SerialPacote ConvertFromString(string data)
         {
-            if (string.IsNullOrEmpty(data)) return null;
-            return JsonConvert.DeserializeObject<SerialPacote>(data);
+            try
+            {
+                return JsonConvert.DeserializeObject<SerialPacote>(data);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

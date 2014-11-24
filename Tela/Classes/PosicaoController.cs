@@ -51,8 +51,9 @@ namespace Tela.Classes
             public Posicao Posicao { get; set; }
         }
 
-        public void SetPosicoesPosicionamento(int quadrados)
+        public void SetPosicoesPosicionamento()
         {
+            int quadrados = Principal.Quadrados;
             for (int y = quadrados - 1; y >= quadrados - 4; y--)
             {
                 for (int x = quadrados - 1; x >= 0; x--)
@@ -96,8 +97,7 @@ namespace Tela.Classes
         public Peca TerminarMovimento(Posicao posicao)
         {
             var peca = _PecaMovimentando;
-            var remove = _Posicoes.Where(x => x.Posicao.X == posicao.X && x.Posicao.Y == posicao.Y).FirstOrDefault();
-            _Posicoes.Remove(remove);
+            MatarPeca(posicao);
             CancelarMovimento();
             return peca;
         }
@@ -110,6 +110,12 @@ namespace Tela.Classes
                 return temp.Peca;
             }
             return null;
+        }
+
+        public void MatarPeca(Posicao posicao)
+        {
+            var remove = _Posicoes.Where(x => x.Posicao.X == posicao.X && x.Posicao.Y == posicao.Y).FirstOrDefault();
+            _Posicoes.Remove(remove);
         }
 
         public Validacao SetPosicaoPeca(Peca peca, int x, int y)
@@ -180,6 +186,19 @@ namespace Tela.Classes
                     });
                 }
             }
+
+            return Validacao.ValidacaoSucesso;
+        }
+
+        public Validacao SetPosicaoPecaMovimentoInimiga(_PanelPosicionamento info, Posicao posicao)
+        {
+            info.Peca.AddPosicao(posicao);
+
+            _Posicoes.Add(new PosicaoPeca()
+            {
+                Peca = info.Peca,
+                Posicao = posicao
+            });
 
             return Validacao.ValidacaoSucesso;
         }

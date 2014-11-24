@@ -16,5 +16,14 @@ namespace Tela.Classes
             this.X = x;
             this.Y = y;
         }
+
+        public Posicao ToEnemy()
+        {
+            var metade = Principal.Quadrados / 2;
+            return new Posicao(
+                X > metade ? X - metade : X + metade,
+                Y > metade ? Y - metade : Y + metade
+            );
+        }
     }
 }

@@ -18,7 +18,7 @@ namespace Tela.Classes
         public TimerPiscar(MyPanel panel)
         {            
             this._Panel = panel;
-            this._Timer = new Timer(100);
+            this._Timer = new Timer(10);
             this._Timer.Elapsed += new ElapsedEventHandler(_timer_Elapsed);
         }
        

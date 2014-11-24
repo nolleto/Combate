@@ -28,7 +28,7 @@ namespace Tela.Classes
                     baixo = true, 
                     direita = true, 
                     esquerda = true;
-                for (int i = 1; i < _Tabulerio.Quadrados; i++)
+                for (int i = 1; i < Principal.Quadrados; i++)
                 {
                     var pBaixo = PosicaoConvert(new Posicao(posicao.X, posicao.Y + i));
                     var pCima = PosicaoConvert(new Posicao(posicao.X, posicao.Y - i));
@@ -113,7 +113,7 @@ namespace Tela.Classes
 
         private bool LugarValido(Posicao p)
         {
-            return p.X < _Tabulerio.Quadrados && p.X >= 0 && p.Y < _Tabulerio.Quadrados && p.Y >= 0;
+            return p.X < Principal.Quadrados && p.X >= 0 && p.Y < Principal.Quadrados && p.Y >= 0;
         }
 
         public class _MovimentoInfo : Posicao

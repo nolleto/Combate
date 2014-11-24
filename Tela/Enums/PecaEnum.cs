@@ -26,7 +26,7 @@ namespace Tela.Enums
         Miners,
         [Atributos(9, 8, false, true)]
         Scouts,
-        [Atributos(0, 1, true)]
+        [Atributos(10, 1, true)]
         Spy,
         [Atributos(6, true)]
         Bombs,

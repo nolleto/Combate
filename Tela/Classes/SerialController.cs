@@ -12,10 +12,11 @@ namespace Tela.Classes
 {
     public class SerialController : System.IO.Ports.SerialPort
     {
-        private TabuleiroController _Tabuleiro;
-        private System.Windows.Forms.Timer _Timer = new System.Windows.Forms.Timer();
+        private bool _InimigoEncontrado;
 
-        public TabuleiroController Tabuleiro { get { return _Tabuleiro; } }
+        private TabuleiroBase _Events;
+        private SerialPacote _PacoteEnviado;
+        private SerialPacote _PacoteRecebido;
 
         public SerialController(System.ComponentModel.IContainer iContainer)
             : base(iContainer)
@@ -27,26 +28,31 @@ namespace Tela.Classes
             this.StopBits = System.IO.Ports.StopBits.One;
             this.DataReceived += new SerialDataReceivedEventHandler(OnDataReceived);
 
-            Open();
-        }
-    
-        public void SetTabulerio(TabuleiroController tabuleiro)
-        {
-            this._Tabuleiro = tabuleiro;
+            //Open();
+            //EnviarPacote(new SerialPacote());
         }
 
-        private void IniciarProcuraPorAdversario()
-        {
-            _Timer.Interval = 1000;
-            _Timer.Tick += new EventHandler(ProcuraAdversario_Event);
-            _Timer.Start();
-        }
-
-        private void PararProcuraPorAdversario()
+        public void TerminarPosicionamento()
         {
         }
 
-        private void ProcuraAdversario_Event(object sender, EventArgs e)
+        public void EnviarPosicionamento(Posicao posicao, Peca peca)
+        {
+        }
+
+        public void EnviarMovimento(Posicao posicaoAntiga, Posicao posicaoNova, Peca peca)
+        {
+        }
+
+        public void MatarInimigo(Posicao posicao)
+        {
+        }
+
+        public void MatarMinhaPeca(Posicao posicao)
+        {
+        }
+
+        public void DeclararVitoria()
         {
         }
 
@@ -54,15 +60,23 @@ namespace Tela.Classes
         {
             Thread.Sleep(70);
 
-            if (false && _Tabuleiro != null)
-            {
-                string Dado = this.ReadExisting();
-                var pacote = SerialPacote.ConvertFromString(Dado);
+            string dados = this.ReadExisting();
+            _PacoteRecebido = SerialPacote.ConvertFromString(dados);
 
-                if (pacote != null)
-                {
-                }
+            if (!_InimigoEncontrado && _PacoteRecebido != null)
+            {
+                //Inimigo encontrado
             }
+            else if (_PacoteRecebido != null && _Events != null)
+            {
+                //Tratamento
+                _PacoteRecebido = null;
+            }
+        }
+
+        private void EnviarPacote(SerialPacote sp)
+        {
+            _PacoteEnviado = sp;
         }
     }
 }

@@ -7,6 +7,8 @@ namespace Tela.Atributos
 {
     public class AtributosAttribute : Attribute
     {
+        public static int ForcaMaxima = 10;
+
         private int _Forca;
         private int _Quantidade;
         private bool _Spy;
@@ -24,7 +26,7 @@ namespace Tela.Atributos
 
         public AtributosAttribute(int forca, int quantidade, bool spy = false, bool passoLargo = false)
         {
-            this._Forca = forca;
+            this._Forca = ForcaMaxima - forca;
             this._Quantidade = quantidade;
             this._Spy = spy;
             this._PassoLargo = passoLargo;
@@ -35,6 +37,7 @@ namespace Tela.Atributos
             this._Quantidade = quantidade;
             this._Bomba = bomba;
             this._Bandeira = bandeira;
+            this._Forca = 0;
         }
     }
 }

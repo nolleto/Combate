@@ -13,11 +13,12 @@ namespace Tela
 {
     public partial class Principal : Form
     {
+        public const int TamanhoQuadrado = 40;
+        public const int Quadrados = 10;
+
         const int LINHAS_COLUNAS = 10;
         Quadrado.Cores MinhaCor = Quadrado.Cores.Branco;
         Borda IndicacaoMinhaCor;
-
-        System.Windows.Forms.Timer tmrProcuraAdversario = new System.Windows.Forms.Timer();
 
         bool ControleMinhaVez = true;
         bool Ganhou = false;
@@ -31,16 +32,12 @@ namespace Tela
 
         private void Principal_Load(object sender, EventArgs e)
         {
-            _Tabuleiro = new TabuleiroController(this, 40, 10, Color.DarkGray);            
-            DesenhaTabuleiro();
-            this.PortaSerial.SetTabulerio(_Tabuleiro);
+            _Tabuleiro = new TabuleiroController(this);
+            _Tabuleiro.SetSerialController(this.PortaSerial);
+            DesenhaTabuleiro();            
             
             try
             {
-
-                tmrProcuraAdversario.Interval = 1000;
-                tmrProcuraAdversario.Tick += new EventHandler(tmrProcuraAdversario_Tick);
-                tmrProcuraAdversario.Start();
                 lblInformacoes.Text = "Aguardando jogador...";
 
             }
@@ -337,7 +334,7 @@ namespace Tela
 
         private void Principal_FormClosing(object sender, FormClosingEventArgs e)
         {
-            PortaSerial.Write("SAINDO");
+            //PortaSerial.Write("SAINDO");
         }
         #endregion
 
@@ -350,6 +347,22 @@ namespace Tela
         private void button2_Click(object sender, EventArgs e)
         {
             _Tabuleiro.SetMinhaRodada();
+        }
+
+        Peca _PecaInimigo = new Peca(Enums.PecaEnum.Marshal);
+        private void button5_Click(object sender, EventArgs e)
+        {
+            _Tabuleiro.PosicionarInimigo(new Posicao(0, 0), _PecaInimigo);
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            _Tabuleiro.MovimentarInimigo(new Posicao(0, 0), new Posicao(9, 0), _PecaInimigo);
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            _Tabuleiro.MovimentarInimigo(new Posicao(0, 0), new Posicao(0, 7), _PecaInimigo);
         }
     }
 }

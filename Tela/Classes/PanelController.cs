@@ -15,8 +15,6 @@ namespace Tela.Classes
         private MyPanel _PanelTabuleiroParent;
         private MyPanel _PanelPosicionarParent;
 
-        private int _Quadrados;
-        private int _Tamanho;
         private Color _Background;
 
         public List<_PanelPosicionamento> PanelsTabuleiro { get { return _PanelsTabuleiro; } }
@@ -25,21 +23,19 @@ namespace Tela.Classes
         public MyPanel PanelTabuleiroParent { get { return _PanelTabuleiroParent; } }
         public MyPanel PanelPosicionarParent { get { return _PanelPosicionarParent; } }
 
-        public PanelController(Form form, int tamQuadrado, int quantQuadrado, Color background)
+        public PanelController(Form form, Color background)
         {
-            this._Tamanho = tamQuadrado;
-            this._Quadrados = quantQuadrado;
             this._Background = background;
             this._PanelPosicionarParent = new MyPanel()
             {
                 AutoScroll = true,
-                Size = new Size(form.Width - 15, _Tamanho + 20),
-                Location = new Point(0, (_Tamanho * _Quadrados) + 10)
+                Size = new Size(form.Width - 15, Principal.TamanhoQuadrado + 20),
+                Location = new Point(0, (Principal.TamanhoQuadrado * Principal.Quadrados) + 10)
             };
             this._PanelTabuleiroParent = new MyPanel()
             {
                 Location = new Point(0, 0),
-                Size = new Size(_Tamanho * _Quadrados, _Tamanho * _Quadrados),
+                Size = new Size(Principal.TamanhoQuadrado * Principal.Quadrados, Principal.TamanhoQuadrado * Principal.Quadrados),
             };
         }
 
@@ -111,17 +107,38 @@ namespace Tela.Classes
             return _PanelsTabuleiro.Where(p => p.Panel.Guid == guid).FirstOrDefault();
         }
 
-        public void SetPecaTabuleiro(Guid guid, Peca peca, bool inimigo = false)
+        public void SetPecaTabuleiro(Guid guid, Peca peca)
         {
             var info = _PanelsTabuleiro.Where(p => p.Panel != null && p.Panel.Guid == guid).FirstOrDefault();
             info.Peca = peca;
-            info.Inimigo = inimigo;
+        }
+
+        public void SetPecaTabuleiroInimigo(Posicao posicao, Peca peca) {
+            var info = _PanelsTabuleiro.Where(p => p.Posicao != null && p.Posicao.X == posicao.X && p.Posicao.Y == posicao.Y).FirstOrDefault();
+            info.Peca = peca;
+            info.Inimigo = true;
         }
 
         public void MovimentarPeca(_PanelPosicionamento antiga, _PanelPosicionamento nova)
         {
             nova.Peca = antiga.Peca;
             antiga.Peca = null;
+        }
+
+        public void MovimentarPecaInimigo(_PanelPosicionamento antiga, Posicao posicaoNova)
+        {
+            var nova = GetPanelInfoTabuleiro(posicaoNova.X, posicaoNova.Y);
+            nova.Peca = antiga.Peca;
+            nova.Inimigo = true;
+            antiga.Peca = null;
+            antiga.Inimigo = false;
+        }
+
+        public void MatarPeca(Posicao posicao)
+        {
+            var info = GetPanelInfoTabuleiro(posicao.X, posicao.Y);
+            info.Peca = null;
+            info.Inimigo = false;
         }
     }
     
@@ -130,6 +147,13 @@ namespace Tela.Classes
         public MyPanel Panel { get; set; }
         public Posicao Posicao { get; set; }
         public Peca Peca { get; set; }
-        public bool Inimigo { get; set; }
+        public bool Inimigo
+        {
+            get { return Panel.Inimigo; }
+            set
+            {
+                Panel.SetInimigo(value);
+            }
+        }
     }
 }

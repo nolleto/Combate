@@ -68,8 +68,11 @@
     </Compile>
     <Compile Include="Classes\SerialPacote.cs" />
     <Compile Include="Classes\TabuleiroController.cs" />
+    <Compile Include="Classes\TabuleiroBase.cs" />
+    <Compile Include="Classes\TimerIndicador.cs" />
     <Compile Include="Classes\TimerPiscar.cs" />
     <Compile Include="Classes\Validacao.cs" />
+    <Compile Include="Enums\DueloEnum.cs" />
     <Compile Include="Enums\EnumUtil.cs" />
     <Compile Include="Enums\PecaEnum.cs" />
     <Compile Include="Principal.cs">
