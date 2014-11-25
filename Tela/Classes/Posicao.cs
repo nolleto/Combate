@@ -19,11 +19,31 @@ namespace Tela.Classes
 
         public Posicao ToEnemy()
         {
-            var metade = Principal.Quadrados / 2;
+            var quadros = Principal.Quadrados - 1;
             return new Posicao(
-                X > metade ? X - metade : X + metade,
-                Y > metade ? Y - metade : Y + metade
+                quadros - X,
+                quadros - Y
             );
+        }
+
+        public PosicaoTabulerio ToPosicaoTabuleiro()
+        {
+            return new PosicaoTabulerio()
+            {
+                Coluna = PosicaoController.Colunas[X],
+                Linha = Y
+            };
+        }
+
+        public class PosicaoTabulerio
+        {
+            public string Coluna { get; set; }
+            public int Linha { get; set; }
+
+            public string ToInfo()
+            {
+                return Coluna + Linha;
+            }
         }
     }
 }

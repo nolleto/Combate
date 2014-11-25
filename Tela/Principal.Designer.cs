@@ -45,7 +45,7 @@ namespace Tela
             // lblInformacoes
             // 
             this.lblInformacoes.AutoSize = true;
-            this.lblInformacoes.Location = new System.Drawing.Point(14, 496);
+            this.lblInformacoes.Location = new System.Drawing.Point(9, 533);
             this.lblInformacoes.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblInformacoes.Name = "lblInformacoes";
             this.lblInformacoes.Size = new System.Drawing.Size(64, 13);
@@ -54,7 +54,7 @@ namespace Tela
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(470, 531);
+            this.button1.Location = new System.Drawing.Point(465, 568);
             this.button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(90, 37);
@@ -65,7 +65,7 @@ namespace Tela
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(18, 533);
+            this.textBox1.Location = new System.Drawing.Point(13, 570);
             this.textBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(444, 20);
@@ -75,7 +75,7 @@ namespace Tela
             // textBox2
             // 
             this.textBox2.Enabled = false;
-            this.textBox2.Location = new System.Drawing.Point(18, 575);
+            this.textBox2.Location = new System.Drawing.Point(13, 612);
             this.textBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
@@ -137,7 +137,7 @@ namespace Tela
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(575, 704);
+            this.ClientSize = new System.Drawing.Size(575, 742);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);

@@ -9,7 +9,7 @@ namespace Tela.Classes
 {
     public class TimerPiscar
     {
-        private Timer _Timer;         
+        private Timer _Timer;
         private MyPanel _Panel;
         private bool _Show;
         private Image _Original;

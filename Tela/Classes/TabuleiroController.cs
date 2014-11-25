@@ -17,6 +17,8 @@ namespace Tela.Classes
         private Color _BackgroundPosicionar = Color.LightGreen;
         private Color _BackgroundInimigo = Color.Red;
 
+        private delegate void _AtualizarTabuleiroCallback();
+
         private SerialController _Serial;
 
         private PanelController _PanelController;
@@ -65,10 +67,7 @@ namespace Tela.Classes
 
         public void Desenhar()
         {
-            if (_PosicionandoPecas)
-            {
-                DesenharPosicionamento();
-            }
+            DesenharPosicionamento();
             AtualizarTabuleiro();
         }
 
@@ -105,35 +104,42 @@ namespace Tela.Classes
 
         private void AtualizarTabuleiro()
         {
-            var panels = _PanelController.PanelsTabuleiro;
-
-            for (var x = 0; x < Principal.Quadrados; x++)
+            if (Form.InvokeRequired)
             {
-                for (var y = 0; y < Principal.Quadrados; y++)
-                {
-                    var info = panels.Where(p => p.Posicao.X == x && p.Posicao.Y == y).FirstOrDefault();
+                _AtualizarTabuleiroCallback d = new _AtualizarTabuleiroCallback(AtualizarTabuleiro);
+                Form.Invoke(d, new object[] { });
+            }
+            else
+            {
+                var panels = _PanelController.PanelsTabuleiro;
 
-                    if (info.Inimigo)
+                for (var x = 0; x < Principal.Quadrados; x++)
+                {
+                    for (var y = 0; y < Principal.Quadrados; y++)
                     {
-                        info.Panel.BackgroundImage = null;
-                        info.Panel.BorderStyle = BorderStyle.None;
-                        info.Panel.BackColor = Color.Black;
-                        //info.Panel.Enabled = false;
-                    }
-                    else if (info.Peca != null)
-                    {
-                        info.Panel.BackgroundImage = info.Peca.Image;
-                        info.Panel.BorderStyle = BorderStyle.None;
-                    }
-                    else if (_Aguas.Any(p => p.X == x && p.Y == y))
-                    {
-                        info.Panel.BackgroundImage = Properties.Resources.backgroundblue;
-                        info.Panel.BorderStyle = BorderStyle.FixedSingle;
-                    }
-                    else
-                    {
-                        info.Panel.BackgroundImage = Properties.Resources.backgroundgreen;
-                        info.Panel.BorderStyle = BorderStyle.FixedSingle;
+                        var info = panels.Where(p => p.Posicao.X == x && p.Posicao.Y == y).FirstOrDefault();
+
+                        if (info.Inimigo)
+                        {
+                            info.Panel.BackgroundImage = null;
+                            info.Panel.BorderStyle = BorderStyle.None;
+                            info.Panel.BackColor = Color.Black;
+                        }
+                        else if (info.Peca != null)
+                        {
+                            info.Panel.BackgroundImage = info.Peca.Image;
+                            info.Panel.BorderStyle = BorderStyle.None;
+                        }
+                        else if (_Aguas.Any(p => p.X == x && p.Y == y))
+                        {
+                            info.Panel.BackgroundImage = Properties.Resources.backgroundblue;
+                            info.Panel.BorderStyle = BorderStyle.FixedSingle;
+                        }
+                        else
+                        {
+                            info.Panel.BackgroundImage = Properties.Resources.backgroundgreen;
+                            info.Panel.BorderStyle = BorderStyle.FixedSingle;
+                        }
                     }
                 }
             }
@@ -322,7 +328,8 @@ namespace Tela.Classes
                                     MatarInimigo(infoAntiga, infoNova, infoNova.Posicao);
                                     DeclararVitoria();
                                     break;
-                                default:
+                                default://Espiao
+                                    EspiarPeca(infoAntiga, infoNova);
                                     break;
                             }
                         }
@@ -396,13 +403,9 @@ namespace Tela.Classes
             //PosicionarInimigos();
         }
 
-        public void PosicionarInimigosTeste(Tela.Classes.PosicaoController.PosicaoPeca[] itens = null)
+        public void PosicionarInimigosTeste()
         {
             throw new NotImplementedException();
-            if (itens == null)
-            {
-                
-            }
 
             Peca peca;
             int faltantes = _Inimigo.APosicionar.Count() - 1;
@@ -436,13 +439,38 @@ namespace Tela.Classes
         }
 
         private void AdicionarPosicionamento(Posicao posicao, Peca peca)
-        {
+        {            
             _Serial.EnviarPosicionamento(posicao.ToEnemy(), peca);
+            if (_Amigo.APosicionar.Count() > 0)
+            {
+                Principal.UpdateStatus("Posicionando");
+            }
+            else if (_Amigo.APosicionar.Count() > 0)
+            {
+                Principal.UpdateStatus("Aguardando outro player");
+            }
+            else
+            {
+                Principal.UpdateStatus("Aguardando inicio da partida");
+            }
         }
 
         private void TerminarPosicionamento()
-        {
+        {            
             _Serial.TerminarPosicionamento();
+        }
+
+        private void EspiarPeca(_PanelPosicionamento espia, _PanelPosicionamento espiada)
+        {
+            _Amigo.CancelarMovimento();
+            _Serial.EspiarPeca(espia.Posicao.ToEnemy(), espiada.Posicao.ToEnemy());
+            //_MinhaRodada = false;
+
+            MessageBox.Show(string.Format(
+                "({0}){1}", 
+                espiada.Posicao.ToPosicaoTabuleiro().ToInfo(),
+                espiada.Peca.GetInfo()
+            ));
         }
 
         private void TerminarRodada(Posicao posicaoAntiga, Posicao posicaoNova, Peca peca)
@@ -481,6 +509,7 @@ namespace Tela.Classes
         public void SetSerialController(SerialController sc)
         {
             _Serial = sc;
+            _Serial.SetEvents(this);
         }
 
         private DueloEnum Duelo(Peca atacando, Peca defendendo)
@@ -492,6 +521,10 @@ namespace Tela.Classes
             else if (defendendo.Bomba)
             {
                 return DueloEnum.Derrota;
+            }
+            else if (atacando.IsSpy)
+            {
+                return DueloEnum.Espiao;
             }
             else if (atacando.Forca < defendendo.Forca)
             {
@@ -543,7 +576,27 @@ namespace Tela.Classes
             } 
         }
 
-        
+        public override void MatarPecaInimiga(Posicao posicao)
+        {
+            _PanelController.MatarPeca(posicao);
+            _Inimigo.MatarPeca(posicao);
+            AtualizarTabuleiro();
+        }
 
+        public override void MatarPecaAmiga(Posicao posicao)
+        {
+            _PanelController.MatarPeca(posicao);
+            _Amigo.MatarPeca(posicao);
+            AtualizarTabuleiro();
+        }
+
+        public override void EspiarPeca(Posicao posicaoEspia, Posicao posicaoEspiada)
+        {
+            MessageBox.Show(string.Format(
+                "A peca da posição {0} acabou de espiar sua peça({1}).",
+                posicaoEspia.ToPosicaoTabuleiro().ToInfo(),
+                posicaoEspiada.ToPosicaoTabuleiro().ToInfo()
+            ));
+        }
     }
 }

@@ -9,6 +9,8 @@ namespace Tela.Classes
 {
     public class PosicaoController
     {
+        public static string[] Colunas = new string[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
+
         private PecasController _PecasController = new PecasController();
 
         private List<PosicaoPeca> _Posicoes = new List<PosicaoPeca>();

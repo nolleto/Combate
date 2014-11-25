@@ -64,5 +64,14 @@ namespace Tela.Classes
         {
             _Movimentos.Add(posicao);
         }
+
+        public string GetInfo()
+        {
+            return string.Format(
+                "Nome: {0}, Força: {1}",
+                Nome,
+                Forca
+            );
+        }
     }
 }

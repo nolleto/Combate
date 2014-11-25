@@ -16,6 +16,8 @@ namespace Tela
         public const int TamanhoQuadrado = 40;
         public const int Quadrados = 10;
 
+        public static System.Windows.Forms.Label Status;
+
         const int LINHAS_COLUNAS = 10;
         Quadrado.Cores MinhaCor = Quadrado.Cores.Branco;
         Borda IndicacaoMinhaCor;
@@ -32,19 +34,20 @@ namespace Tela
 
         private void Principal_Load(object sender, EventArgs e)
         {
+            Principal.Status = this.lblInformacoes;
+            Principal.UpdateStatus("Posicionando");
+
             _Tabuleiro = new TabuleiroController(this);
             _Tabuleiro.SetSerialController(this.PortaSerial);
-            DesenhaTabuleiro();            
-            
-            try
-            {
-                lblInformacoes.Text = "Aguardando jogador...";
+            DesenhaTabuleiro();
+        }
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+        public static void UpdateStatus(string s)
+        {
+            Principal.Status.Text = string.Concat(
+                "Status: ",
+                s
+            );
         }
 
         void tmrProcuraAdversario_Tick(object sender, EventArgs e)
@@ -334,7 +337,7 @@ namespace Tela
 
         private void Principal_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //PortaSerial.Write("SAINDO");
+            this.PortaSerial.Saindo();
         }
         #endregion
 

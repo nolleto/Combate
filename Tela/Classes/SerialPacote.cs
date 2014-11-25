@@ -8,11 +8,24 @@ namespace Tela.Classes
 {
     public class SerialPacote
     {
-        public Peca Peca { get; set; }
+        public static string INICIO = "BEGIN";
+        public static string FIM = "END";
+
+        public Enums.PecaEnum PecaEnum { get; set; }
+        public Posicao Posicao { get; set; }
+        public Posicao PosicaoAux { get; set; }
+        public Enums.DueloEnum DueloEnum { get; set; }
+        public Enums.SerialPacoteEnum Info { get; set; }
+
+        public bool Inimgo { get; set; }
 
         public string ToJsonString()
         {
-            return JsonConvert.SerializeObject(this);
+            return string.Concat( 
+                SerialPacote.INICIO,
+                JsonConvert.SerializeObject(this),
+                SerialPacote.FIM
+            );
         }
 
         public static SerialPacote ConvertFromString(string data)
@@ -26,5 +39,5 @@ namespace Tela.Classes
                 return null;
             }
         }
-    }
+    }    
 }

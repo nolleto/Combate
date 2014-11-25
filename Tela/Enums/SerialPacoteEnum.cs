@@ -5,13 +5,13 @@ using System.Text;
 
 namespace Tela.Enums
 {
-    public enum DueloEnum
+    public enum SerialPacoteEnum
     {
+        Posicionamento,
+        Movimento,
+        Morte,
+        Espiao,
         Vitoria,
-        Derrota,
-        Empate,
-        VenceuJogo,
-        PerdeuJogo,
-        Espiao
+        Saindo
     }
 }

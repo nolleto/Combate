@@ -16,6 +16,7 @@ namespace Tela.Classes
         private MyPanel _PanelPosicionarParent;
 
         private Color _Background;
+        private Form _Form;
 
         public List<_PanelPosicionamento> PanelsTabuleiro { get { return _PanelsTabuleiro; } }
         public List<_PanelPosicionamento> PanelsPosicionamento { get { return _PanelsPosicionamento; } }
@@ -25,18 +26,21 @@ namespace Tela.Classes
 
         public PanelController(Form form, Color background)
         {
+            this._Form = form;
             this._Background = background;
             this._PanelPosicionarParent = new MyPanel()
             {
                 AutoScroll = true,
-                Size = new Size(form.Width - 15, Principal.TamanhoQuadrado + 20),
-                Location = new Point(0, (Principal.TamanhoQuadrado * Principal.Quadrados) + 10)
+                Size = new Size(this._Form.Width - 15, Principal.TamanhoQuadrado + 20),
+                Location = new Point(0, (Principal.TamanhoQuadrado * Principal.Quadrados) + 50)
             };
             this._PanelTabuleiroParent = new MyPanel()
             {
-                Location = new Point(0, 0),
+                Location = new Point(Principal.TamanhoQuadrado, Principal.TamanhoQuadrado),
                 Size = new Size(Principal.TamanhoQuadrado * Principal.Quadrados, Principal.TamanhoQuadrado * Principal.Quadrados),
             };
+
+            MostrarIndicadorPoscoes();
         }
 
         public void AddTabuleiroPanel(MyPanel panel, int x, int y)
@@ -57,6 +61,37 @@ namespace Tela.Classes
                 Peca = peca
             });
             _PanelPosicionarParent.Controls.Add(panel);
+        }
+
+        public void MostrarIndicadorPoscoes()
+        {            
+            var size = new Size(Principal.TamanhoQuadrado, Principal.TamanhoQuadrado);
+            var font = new Font("Arial", 16);            
+            List<Control> list = new List<Control>();
+            
+            for (int i = 0; i < 10; i++)
+			{
+                var a = PosicaoController.Colunas[i];
+                list.Add(new Label()
+                {
+                    Location = new Point(0, (i + 1) * Principal.TamanhoQuadrado),
+                    Text = (i + 1).ToString(),
+                    Size = size,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = font,
+                    BorderStyle = BorderStyle.FixedSingle
+                });
+                list.Add(new Label()
+                {
+                    Location = new Point((i + 1) * Principal.TamanhoQuadrado, 0),
+                    Text = a,
+                    Size = size,                    
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = font,
+                    BorderStyle = BorderStyle.FixedSingle                    
+                });
+			}
+            _Form.Controls.AddRange(list.ToArray());
         }
 
         public void LimparTabuleiroPanel()

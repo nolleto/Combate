@@ -75,6 +75,7 @@
     <Compile Include="Enums\DueloEnum.cs" />
     <Compile Include="Enums\EnumUtil.cs" />
     <Compile Include="Enums\PecaEnum.cs" />
+    <Compile Include="Enums\SerialPacoteEnum.cs" />
     <Compile Include="Principal.cs">
       <SubType>Form</SubType>
     </Compile>
