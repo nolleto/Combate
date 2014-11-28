@@ -12,7 +12,7 @@ namespace Tela.Classes
         private static Timer _Timer;
         private static List<_TimerIndicadorObj> _Panels = new List<_TimerIndicadorObj>();
         private static bool _Show;
-        private static float _Opacity;
+        private static float _Opacity;        
 
         public static void Start(MyPanel panel)
         {
@@ -49,8 +49,20 @@ namespace Tela.Classes
                 }
                 TimerIndicador._Panels = new List<_TimerIndicadorObj>();
             }
-        }        
+        }
 
+        public static void Stop(MyPanel panel)
+        {
+            if (_Timer.Enabled)
+            {
+                _Timer.Stop();
+                _Timer.Enabled = false;
+            }
+            var obj = TimerIndicador._Panels.Where(o => o.Panel.Guid == panel.Guid).FirstOrDefault();
+            panel.BackgroundImage = obj.Image;
+            TimerIndicador._Panels.Remove(obj);
+        }
+        
         private static void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             if (_Show)
@@ -58,6 +70,7 @@ namespace Tela.Classes
                 _Opacity += (float)0.1;
                 if (_Opacity >= 1)
                 {
+                    _Opacity = 1;
                     _Show = false;
                 }
             }
@@ -66,13 +79,17 @@ namespace Tela.Classes
                 _Opacity -= (float)0.1;
                 if (_Opacity <= 0)
                 {
-                    _Show = true;
+                    _Opacity = 0;
+                    _Show = true;                    
                 }
             }
 
-            foreach (var obj in TimerIndicador._Panels)
+            if (_Timer.Enabled)
             {
-                obj.Panel.BackgroundImage = ImageUtil.SetImageOpacity(obj.Image, _Opacity);
+                foreach (var obj in TimerIndicador._Panels)
+                {
+                    obj.Panel.BackgroundImage = ImageUtil.SetImageOpacity(obj.Image, _Opacity);
+                }
             }
         }
     }

@@ -51,7 +51,6 @@ C:\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.Properties.Res
 C:\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.csproj.GenerateResource.Cache
 C:\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.exe
 C:\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.pdb
-C:\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.csprojResolveAssemblyReference.cache
 C:\Users\0094078\Downloads\Combate-master\Tela\bin\Debug\Newtonsoft.Json.dll
 C:\Users\0094078\Downloads\Combate-master\Tela\bin\Debug\Newtonsoft.Json.xml
 D:\Projetos\Combate\Tela\obj\x86\Debug\Tela.exe
@@ -65,3 +64,15 @@ D:\Projetos\Combate\Tela\bin\Debug\Tela.exe
 D:\Projetos\Combate\Tela\bin\Debug\Tela.pdb
 D:\Projetos\Combate\Tela\bin\Debug\Newtonsoft.Json.dll
 D:\Projetos\Combate\Tela\bin\Debug\Newtonsoft.Json.xml
+C:\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.csprojResolveAssemblyReference.cache
+C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.exe
+C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.pdb
+C:\Users\0093362\Desktop\Combate-master\Tela\bin\Debug\branco.jpg
+C:\Users\0093362\Desktop\Combate-master\Tela\bin\Debug\Tela.exe
+C:\Users\0093362\Desktop\Combate-master\Tela\bin\Debug\Tela.pdb
+C:\Users\0093362\Desktop\Combate-master\Tela\bin\Debug\Newtonsoft.Json.dll
+C:\Users\0093362\Desktop\Combate-master\Tela\bin\Debug\Newtonsoft.Json.xml
+C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.csprojResolveAssemblyReference.cache
+C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.Principal.resources
+C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.Properties.Resources.resources
+C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.csproj.GenerateResource.Cache

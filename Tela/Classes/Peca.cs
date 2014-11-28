@@ -10,8 +10,8 @@ namespace Tela.Classes
 {
     public class Peca
     {
-        public static Dictionary<PecaEnum, Bitmap> _Imagens;
-        public static Dictionary<PecaEnum, Bitmap> Imagens
+        private static Dictionary<PecaEnum, Bitmap> _Imagens;
+        private static Dictionary<PecaEnum, Bitmap> Imagens
         {
             get
             {
@@ -46,6 +46,7 @@ namespace Tela.Classes
         public bool Bandeira { get { return _Attr.Bandeira; } }
         public bool Anda { get { return !_Attr.Bomba && !_Attr.Bandeira; } }
         public bool PassoLargo { get { return _Attr.PassoLargo; } }
+        public bool Desarmador { get { return _Attr.Desamador; } }
 
         public List<Posicao> Movimentos { get { return _Movimentos; } }
 
@@ -67,11 +68,54 @@ namespace Tela.Classes
 
         public string GetInfo()
         {
-            return string.Format(
-                "Nome: {0}, Força: {1}",
-                Nome,
-                Forca
-            );
+            if (Bandeira)
+            {
+                return "Banderia";
+            }
+            else if (Bomba)
+            {
+                return "Bomba";
+            }
+            else
+            {
+                return string.Format(
+                    "Nome: {0}, Força: {1}",
+                    Nome,
+                    Forca
+                );
+            }
+        }
+
+        public DueloEnum Atacar(Classes.Peca inimigo)
+        {
+            if (inimigo.Bandeira)
+            {
+                return DueloEnum.VenceuJogo;
+            }
+            else if (inimigo.Bomba && !Desarmador)
+            {
+                return DueloEnum.Derrota;
+            }
+            else if (inimigo.Bomba && Desarmador)
+            {
+                return DueloEnum.Vitoria;
+            }
+            else if (IsSpy)
+            {
+                return DueloEnum.Espiao;
+            }
+            else if (Forca < inimigo.Forca)
+            {
+                return DueloEnum.Derrota;
+            }
+            else if (Forca > inimigo.Forca)
+            {
+                return DueloEnum.Vitoria;
+            }
+            else
+            {
+                return DueloEnum.Empate;
+            }
         }
     }
 }

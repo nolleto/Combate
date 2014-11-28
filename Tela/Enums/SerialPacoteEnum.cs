@@ -10,8 +10,11 @@ namespace Tela.Enums
         Posicionamento,
         Movimento,
         Morte,
+        MorteAmbos,
         Espiao,
         Vitoria,
-        Saindo
+        InimigoSaiu,
+        InimigoEntrou,
+        IniciarPartida
     }
 }

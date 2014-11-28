@@ -22,7 +22,7 @@ namespace Tela.Enums
         Lieutenants,
         [Atributos(7, 4)]
         Sergeants,
-        [Atributos(8, 5)]
+        [Atributos(8, 5, desarmador: true)]
         Miners,
         [Atributos(9, 8, false, true)]
         Scouts,

@@ -30,10 +30,10 @@ namespace Tela.Classes
                     esquerda = true;
                 for (int i = 1; i < Principal.Quadrados; i++)
                 {
-                    var pBaixo = PosicaoConvert(new Posicao(posicao.X, posicao.Y + i));
-                    var pCima = PosicaoConvert(new Posicao(posicao.X, posicao.Y - i));
-                    var pDireita = PosicaoConvert(new Posicao(posicao.X + i, posicao.Y));
-                    var pEsquerda = PosicaoConvert(new Posicao(posicao.X - i, posicao.Y));
+                    var pBaixo = new _MovimentoInfo(posicao.X, posicao.Y + i);
+                    var pCima = new _MovimentoInfo(posicao.X, posicao.Y - i);
+                    var pDireita = new _MovimentoInfo(posicao.X + i, posicao.Y);
+                    var pEsquerda = new _MovimentoInfo(posicao.X - i, posicao.Y);
 
                     if (cima && LugarValido(pCima))
                     {
@@ -86,7 +86,7 @@ namespace Tela.Classes
                 {
                     if (LugarValido(p))
                     {
-                        var m = PosicaoConvert(p);
+                        var m = new _MovimentoInfo(p);
                         m.Amigo = GetPosicoesMovimento_Aux(p, posicoesAmigo);
                         m.Inimigo = GetPosicoesMovimento_Aux(p, posicoesInimigo);
                         movimentos.Add(m);
@@ -100,15 +100,7 @@ namespace Tela.Classes
 
         private bool GetPosicoesMovimento_Aux(Posicao posicao, Posicao[] pecas)
         {
-            return pecas.Any(o => o.X == posicao.X && o.Y == posicao.Y);
-        }
-
-        private _MovimentoInfo PosicaoConvert(Posicao p) {
-            return new _MovimentoInfo()
-            {
-                X = p.X,
-                Y = p.Y
-            };
+            return pecas.Any(p => p.Compare(posicao));
         }
 
         private bool LugarValido(Posicao p)
@@ -118,6 +110,16 @@ namespace Tela.Classes
 
         public class _MovimentoInfo : Posicao
         {
+            public _MovimentoInfo(int x, int y)
+                : base(x, y)
+            {
+            }
+
+            public _MovimentoInfo(Posicao p)
+                : base(p.X, p.Y)
+            {
+            }
+
             public bool Amigo { get; set; }
             public bool Inimigo { get; set; }
             public bool Obstaculo { get; set; }

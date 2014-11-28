@@ -12,8 +12,6 @@ namespace Tela.Classes
         private bool _Agua;
         private bool _Inimigo;
 
-        private TimerPiscar _Timer;
-
         public Guid Guid { get { return _Guid; } }
         public bool Agua { get { return _Agua; } }
         public bool Inimigo { get { return _Inimigo; } }
@@ -21,7 +19,6 @@ namespace Tela.Classes
         public MyPanel()
         {
             this._Guid = Guid.NewGuid();
-            this._Timer = new TimerPiscar(this);
         }
 
         public void SetAgua(bool agua)
@@ -38,15 +35,13 @@ namespace Tela.Classes
         {
             if (!_Agua)
             {
-                TimerIndicador.Start(this);
-                //_Timer.Start();
+                TimerIndicador.Start(this);                
             }
         }
 
         public void Desanimar()
         {
             TimerIndicador.Stop();
-            //_Timer.Stop();
         }
     }
 }

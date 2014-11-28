@@ -15,7 +15,17 @@ namespace Tela
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Principal());
+            var app = new Principal();
+
+            try
+            {                
+                Application.Run(app);
+            }
+            catch (Exception)
+            {
+                app.PortaSerial.Saindo();
+            }
+            
         }
     }
 }

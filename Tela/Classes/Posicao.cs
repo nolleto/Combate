@@ -17,7 +17,7 @@ namespace Tela.Classes
             this.Y = y;
         }
 
-        public Posicao ToEnemy()
+        public Posicao Inverter()
         {
             var quadros = Principal.Quadrados - 1;
             return new Posicao(
@@ -35,6 +35,16 @@ namespace Tela.Classes
             };
         }
 
+        public bool Compare(Posicao p)
+        {
+            return Compare(p.X, p.Y);
+        }
+
+        public bool Compare(int x, int y)
+        {
+            return X == x && Y == y;
+        }
+
         public class PosicaoTabulerio
         {
             public string Coluna { get; set; }
@@ -42,7 +52,7 @@ namespace Tela.Classes
 
             public string ToInfo()
             {
-                return Coluna + Linha;
+                return Coluna + (Linha + 1);
             }
         }
     }

@@ -13,14 +13,18 @@ namespace Tela.Classes
 {
     public class SerialController : System.IO.Ports.SerialPort
     {
-        private bool _InimigoEncontrado;
         private string _Dados = string.Empty;
+        private bool _InimigoEncontrado;
 
         private System.Timers.Timer _Timer;
+        private System.Timers.Timer _TimerOpen;
 
         private TabuleiroBase _Events;
-        private SerialPacote _PacoteEnviado;
+        private List<SerialPacote> _PacotesAEnviar = new List<SerialPacote>();
+        private List<SerialPacote> _PacotesRecebido = new List<SerialPacote>();
         private SerialPacote _PacoteRecebido;
+
+        public bool InimigoEncontrado { get { return _InimigoEncontrado; } }
 
         public SerialController(System.ComponentModel.IContainer iContainer)
             : base(iContainer)
@@ -31,14 +35,26 @@ namespace Tela.Classes
             this.Parity = System.IO.Ports.Parity.None;
             this.StopBits = System.IO.Ports.StopBits.One;
             this.DataReceived += new SerialDataReceivedEventHandler(OnDataReceived);
-           
-            Open();
-            EnviarPacote(new SerialPacote());
+
+            this._Timer = new System.Timers.Timer(500);
+            this._Timer.Elapsed += new System.Timers.ElapsedEventHandler(_Timer_Elapsed);
+            this._Timer.Start();
+
+            this._TimerOpen = new System.Timers.Timer(500);
+            this._TimerOpen.Elapsed += new System.Timers.ElapsedEventHandler(_TimerOpen_Elapsed);
+
+            TryOpen();
+        }
+
+        public void TryOpen()
+        {
+            this._TimerOpen.Start();
         }
 
         public void SetEvents(TabuleiroBase tb)
         {
             _Events = tb;
+            _Events.UpdateStatusSerial_Received();
         }
 
         public void TerminarPosicionamento()
@@ -66,21 +82,34 @@ namespace Tela.Classes
             });
         }
 
-        public void MatarInimigo(Posicao posicao)
+        public void MatarInimigo(Posicao inimigo, Posicao amigo)
         {
             EnviarPacote(new SerialPacote()
             {
-                Posicao = posicao,
+                Posicao = inimigo,
+                PosicaoAux = amigo,
                 Info = SerialPacoteEnum.Morte
             });
         }
 
-        public void MatarMinhaPeca(Posicao posicao)
+        public void MatarMinhaPeca(Posicao amigo, Posicao inimigo)
         {
             EnviarPacote(new SerialPacote()
             {
-                Posicao = posicao,
+                Posicao = amigo,
+                PosicaoAux = inimigo,
                 Info = SerialPacoteEnum.Morte,
+                Inimgo = true
+            });
+        }
+
+        public void MatarAmbasPecas(Posicao amigo, Posicao inimigo)
+        {
+            EnviarPacote(new SerialPacote()
+            {
+                Posicao = amigo,
+                PosicaoAux = inimigo,
+                Info = SerialPacoteEnum.MorteAmbos,
                 Inimgo = true
             });
         }
@@ -103,60 +132,110 @@ namespace Tela.Classes
             });
         }
 
+        public void IniciarPartida(bool euInicio)
+        {
+            EnviarPacote(new SerialPacote()
+            {
+                Info = SerialPacoteEnum.IniciarPartida,
+                Inimgo = !euInicio
+            });
+        }
+
         public void Saindo()
         {
             EnviarPacote(new SerialPacote()
             {
-                Info = SerialPacoteEnum.Saindo
+                Info = SerialPacoteEnum.InimigoSaiu
             });
+            Close();
+        }
+
+        private void _TimerOpen_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            try
+            {
+                Open();
+                if (IsOpen)
+                {
+                    _TimerOpen.Stop();
+                }                    
+            }
+            catch (Exception)
+            {
+                Close();
+            }
+            if (_Events != null)
+            {
+                _Events.UpdateStatusSerial_Received();
+            }
         }
 
         private void OnDataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             _PacoteRecebido = GetFromSerial();
 
-            if (!_InimigoEncontrado && _PacoteRecebido != null)
-            {
-                //Inimigo encontrado
-                _InimigoEncontrado = true;
-            }
-            else if (_PacoteRecebido != null && _Events != null)
+            if (_PacoteRecebido != null && _Events != null)
             {
                 //Tratamento
+                if (_PacoteRecebido.Info != SerialPacoteEnum.Vitoria &&
+                    _PacoteRecebido.Info != SerialPacoteEnum.InimigoSaiu &&
+                    _PacoteRecebido.Info != SerialPacoteEnum.InimigoEntrou)
+                {
+                    _Events.SuaVez_Received();
+                }
+
                 switch (_PacoteRecebido.Info)
                 {
                     case SerialPacoteEnum.Posicionamento:
-                        _Events.PosicionarInimigo(_PacoteRecebido.Posicao, new Peca(_PacoteRecebido.PecaEnum));
+                        _Events.PosicionarInimigo_Received(_PacoteRecebido.Posicao, new Peca(_PacoteRecebido.PecaEnum));
                         break;
                     case SerialPacoteEnum.Movimento:
-                        _Events.MovimentarInimigo(_PacoteRecebido.Posicao, _PacoteRecebido.PosicaoAux, new Peca(_PacoteRecebido.PecaEnum));
+                        _Events.MovimentarInimigo_Received(_PacoteRecebido.Posicao, _PacoteRecebido.PosicaoAux, new Peca(_PacoteRecebido.PecaEnum));
                         break;
                     case SerialPacoteEnum.Morte:
                         if (_PacoteRecebido.Inimgo)
                         {
-                            _Events.MatarPecaInimiga(_PacoteRecebido.Posicao);
+                            _Events.MatarPecaInimiga_Received(_PacoteRecebido.Posicao, _PacoteRecebido.PosicaoAux);
                         }
                         else
                         {
-                            _Events.MatarPecaAmiga(_PacoteRecebido.Posicao);
+                            _Events.MatarPecaAmiga_Received(_PacoteRecebido.Posicao, _PacoteRecebido.PosicaoAux);
                         }
                         break;
-                    case SerialPacoteEnum.Saindo:
+                    case SerialPacoteEnum.MorteAmbos:
+                        _Events.MatarAmbasPeca_Received(_PacoteRecebido.PosicaoAux, _PacoteRecebido.Posicao);
+                        break;
+                    case SerialPacoteEnum.InimigoSaiu:
                         _InimigoEncontrado = false;
-                        EnviarPacote(new SerialPacote());
+                        _Events.UpdateStatusSerial_Received();
+                        
+                        break;
+                    case SerialPacoteEnum.InimigoEntrou:
+                        _InimigoEncontrado = true;
+                        _Events.UpdateStatusSerial_Received();
+                        EnviarPacote(new SerialPacote()
+                        {
+                            Info = SerialPacoteEnum.InimigoEntrou
+                        });
+
                         break;
                     case SerialPacoteEnum.Vitoria:
-                        //Você foi derrotado
+                        _Events.DeclararDerrota_Received();
+                        break;
+                    case SerialPacoteEnum.IniciarPartida:
+                        _Events.IniciarPartida_Received(_PacoteRecebido.Inimgo);
                         break;
                     default://Espiao
-                        _Events.EspiarPeca(_PacoteRecebido.Posicao, _PacoteRecebido.PosicaoAux);
+                        _Events.EspiarPeca_Received(_PacoteRecebido.Posicao, _PacoteRecebido.PosicaoAux);
                         break;
                 }
 
+                _Events.UpdateStatus_Received();
+                _Events.AtualizarTabuleiro_Received();
                 _PacoteRecebido = null;
             }
         }
-        
+
         private SerialPacote GetFromSerial()
         {
             string dados = this.ReadExisting();
@@ -168,16 +247,42 @@ namespace Tela.Classes
             if (dados.Contains(SerialPacote.FIM))
             {
                 _Dados = _Dados.Replace(SerialPacote.INICIO, "").Replace(SerialPacote.FIM, "");
-                return SerialPacote.ConvertFromString(_Dados);
+                var sp = SerialPacote.ConvertFromString(_Dados);
+                _PacotesRecebido.Add(sp);
+                return sp;
             }
 
             return null;
         }
-        
+
         private void EnviarPacote(SerialPacote sp)
-        {           
-            _PacoteEnviado = sp;
-            this.Write(sp.ToJsonString());
+        {
+            _PacotesAEnviar.Add(sp);
+        }
+
+        private void _Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (_InimigoEncontrado)
+            {
+                if (_PacotesAEnviar.Count() > 0)
+                {
+                    SerialPacote sp = _PacotesAEnviar.ElementAt(0);
+                    _PacotesAEnviar.Remove(sp);
+                    this.Write(sp.ToJsonString());
+                    if (_Events != null)
+                    {
+                        _Events.UpdateStatus_Received();
+                    }
+                }
+            }
+            else if (IsOpen)
+            {
+                var sp = new SerialPacote()
+                {
+                    Info = SerialPacoteEnum.InimigoEntrou
+                };
+                this.Write(sp.ToJsonString());
+            }
         }
     }
 }

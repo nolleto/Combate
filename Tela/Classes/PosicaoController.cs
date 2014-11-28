@@ -11,44 +11,39 @@ namespace Tela.Classes
     {
         public static string[] Colunas = new string[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
 
+        private bool _TudoPosicionado;
         private PecasController _PecasController = new PecasController();
-
         private List<PosicaoPeca> _Posicoes = new List<PosicaoPeca>();
-        private List<Peca> _PecasPosicionamento;
 
-        private List<Posicao> _PosicoesPosicionamento = new List<Posicao>();
+        private List<Peca> _PecasNaoPosicionadas;
+        private List<Posicao> _PosicoesValidas = new List<Posicao>();
 
-        private Peca _PecaPosicionando;        
-        private Peca _PecaMovimentando;
+        private Peca _PecaEmPosicionamento;        
+        private Peca _PecaEmMovimento;
 
         public List<PosicaoPeca> Posicoes { get { return _Posicoes; } }
         public List<Peca> APosicionar { get { return _PecasController.PecasVivas; } }
-        public List<Peca> PecasPosicionamento { get { return _PecasPosicionamento; } }
+        public List<Peca> PecasPosicionamento { get { return _PecasNaoPosicionadas; } }
 
-        public Peca PecaPosicionando { get { return _PecaPosicionando; } }
-        public bool Posicionando { get { return _PecaPosicionando != null; } }
-        public bool FaltaPosicionar { get { return _Posicoes.Count() < 40; } }
+        public Peca PecaEmPosicionamento { get { return _PecaEmPosicionamento; } }
+        public Peca PecaEmMovimento { get { return _PecaEmMovimento; } }
+        
+        public bool PosicionandoPeca { get { return _PecaEmPosicionamento != null; } }
+        public bool MovimentandoPeca { get { return _PecaEmMovimento != null; } }
 
-        public List<Posicao> PosicoesPosicionamento { get { return _PosicoesPosicionamento; } }
+        public bool FaltaPosicionar { get { return !_TudoPosicionado; } }
+        public bool PecasPosicionadas { get { return _TudoPosicionado; } }
 
-        public Peca PecaMovimentando { get { return _PecaMovimentando; } }
-        public bool Movimentando { get { return _PecaMovimentando != null; } }
-
+        public List<Posicao> PosicoesValidasPosicionamento { get { return _PosicoesValidas; } }
         public List<Peca> TodasPecas { get { return _PecasController.Pecas; } }
 
         public PosicaoController()
         {
-            _PecasPosicionamento = _PecasController.PecasVivas;
+            _PecasNaoPosicionadas = _PecasController.PecasVivas;
         }
 
         public class PosicaoPeca
-        {
-            /*public PosicaoPeca()
-            {
-                this.Guid = Guid.NewGuid();
-            }
-
-            public Guid Guid { get; set; }*/
+        {            
             public Peca Peca { get; set; }
             public Posicao Posicao { get; set; }
         }
@@ -60,53 +55,64 @@ namespace Tela.Classes
             {
                 for (int x = quadrados - 1; x >= 0; x--)
                 {
-                    _PosicoesPosicionamento.Add(new Posicao(x, y));
+                    _PosicoesValidas.Add(new Posicao(x, y));
                 }
             }
         }
 
         public void IniciarPosicionamento(Peca peca)
         {
-            _PecaPosicionando = peca;
+            _PecaEmPosicionamento = peca;
         }
 
         public void CancelarPosicionamento()
         {
-            _PecaPosicionando = null;
+            _PecaEmPosicionamento = null;
         }
 
         public Peca TerminarPosicionamento(Posicao posicao)
         {
-            var peca = _PecaPosicionando;
-            var remove = _PecasPosicionamento.Where(x => x.Type == peca.Type).FirstOrDefault();
-            var remove2 = _PosicoesPosicionamento.Where(o => o.X == posicao.X && o.Y == posicao.Y).FirstOrDefault();
-            _PecasPosicionamento.Remove(remove);
-            _PosicoesPosicionamento.Remove(remove2);
+            var peca = _PecaEmPosicionamento;
+            var remove = _PecasNaoPosicionadas.Where(x => x.Type == peca.Type).FirstOrDefault();
+            var remove2 = _PosicoesValidas.Where(p => p.Compare(posicao)).FirstOrDefault();
+            _PecasNaoPosicionadas.Remove(remove);
+            _PosicoesValidas.Remove(remove2);
             CancelarPosicionamento();
+            _TudoPosicionado = _Posicoes.Count() >= 40;
             return peca;
         }
 
         public void IniciarMovimento(Peca peca)
         {
-            _PecaMovimentando = peca;
+            _PecaEmMovimento = peca;
         }
 
         public void CancelarMovimento()
         {
-            _PecaMovimentando = null;
+            _PecaEmMovimento = null;
         }
 
         public Peca TerminarMovimento(Posicao posicao)
         {
-            var peca = _PecaMovimentando;
+            var peca = _PecaEmMovimento;
             MatarPeca(posicao);
             CancelarMovimento();
             return peca;
         }
 
+        public Peca GetPecaMovimento(Posicao posicao)
+        {
+            return _Posicoes.Where(o => o.Posicao.Compare(posicao)).FirstOrDefault().Peca;
+        }
+
+        public Peca GetPecaByPosicao(Posicao posicao)
+        {
+            return GetPecaByPosicao(posicao.X, posicao.Y);
+        }
+
         public Peca GetPecaByPosicao(int x, int y)
         {
-            var temp = _Posicoes.Where(o => o.Posicao.X == x && o.Posicao.Y == y).FirstOrDefault();
+            var temp = _Posicoes.Where(o => o.Posicao.Compare(x, y)).FirstOrDefault();
             if (temp != null)
             {
                 return temp.Peca;
@@ -116,17 +122,17 @@ namespace Tela.Classes
 
         public void MatarPeca(Posicao posicao)
         {
-            var remove = _Posicoes.Where(x => x.Posicao.X == posicao.X && x.Posicao.Y == posicao.Y).FirstOrDefault();
+            var remove = _Posicoes.Where(x => x.Posicao.Compare(posicao)).FirstOrDefault();
             _Posicoes.Remove(remove);
         }
 
         public Validacao SetPosicaoPeca(Peca peca, int x, int y)
         {
-            if (_Posicoes.Any(p => p.Posicao != null && p.Posicao.X == x && p.Posicao.Y == y))
+            if (_Posicoes.Any(p => p.Posicao != null && p.Posicao.Compare(x, y)))
             {
                 return Validacao.ValidacaoErro("A peça não pode ser colocada pois já existe uma outra peça no lugar.");
             }
-            else if (!_PosicoesPosicionamento.Any(p => p.X == x && p.Y == y))
+            else if (!_PosicoesValidas.Any(p => p.Compare(x, y)))
             {
                 return Validacao.ValidacaoErro("A peça não pode ser colocada pois o lugar é inválido.");
             }
@@ -161,19 +167,18 @@ namespace Tela.Classes
 
         public Validacao SetPosicaoPecaMovimento(_PanelPosicionamento info, int x, int y, Posicao[] posicoesValidas)
         {
-            if (_Posicoes.Any(p => p.Posicao != null && p.Posicao.X == x && p.Posicao.Y == y))
+            if (_Posicoes.Any(p => p.Posicao != null && p.Posicao.Compare(x ,y)))
             {
                 return Validacao.ValidacaoErro("A peça não pode ser colocada pois já existe uma outra peça no lugar.");
             }
-            else if (!posicoesValidas.Any(p => p.X == x && p.Y == y))
+            else if (!posicoesValidas.Any(p => p.Compare(x, y)))
             {
                 return Validacao.ValidacaoErro("A peça não pode se mover para esse lugar.");
             }
             else
             {
                 var posicao = new Posicao(x, y);
-                var retorno = TentandoMatarTempo(info.Peca, posicao);
-                if (retorno.Sim)
+                if (TentandoMatarTempo(info.Peca, posicao))
                 {
                     return Validacao.ValidacaoErro("Pare de enrolar.");
                 }
@@ -205,25 +210,21 @@ namespace Tela.Classes
             return Validacao.ValidacaoSucesso;
         }
 
-        private _MataTempo TentandoMatarTempo(Peca peca, Posicao proximo)
+        private bool TentandoMatarTempo(Peca peca, Posicao proximo)
         {
-            var response = new _MataTempo();
             var length = peca.Movimentos.Count();
-            if (length >= 2)
+            if (length > 2)
             {
-                var penultimo = peca.Movimentos[length - 2];
-
-                if (penultimo.X == proximo.X && penultimo.Y == proximo.Y)
+                var a = peca.Movimentos[length - 1];
+                var b = peca.Movimentos[length - 2];
+                var c = peca.Movimentos[length - 3];                
+                
+                if (proximo.Compare(b) && a.Compare(c))
                 {
-                    response.Sim = true;
+                    return true;
                 }
             }
-            return response;
-        }
-
-        public class _MataTempo
-        {
-            public bool Sim { get; set; }
+            return false;
         }
     }
 }

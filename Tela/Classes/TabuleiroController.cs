@@ -11,30 +11,28 @@ namespace Tela.Classes
 {
     public class TabuleiroController : TabuleiroBase
     {
+        private bool _PartidaIniciada = false;
+        private bool _PartidaConluida = false;
+        private bool _Vitoria = false;
         private bool _MinhaRodada = false;
-
-        private Color _Background = Color.DarkGray;
-        private Color _BackgroundPosicionar = Color.LightGreen;
-        private Color _BackgroundInimigo = Color.Red;
+        private bool _InimigoEncontrado = false;
+        private bool _PosicionandoPecas = true;
 
         private delegate void _AtualizarTabuleiroCallback();
 
         private SerialController _Serial;
-
         private PanelController _PanelController;
-                   
+
         private PosicaoController _Amigo = new PosicaoController();
         private PosicaoController _Inimigo = new PosicaoController();
 
         private PosicaoMovimentosController _Movimentos;
 
-        private bool _PosicionandoPecas = true;
-        private bool _PosicionamentoOK = false;
-
         private MyPanel _PosicionamentoPanel;
         private MyPanel _MovimentoPanel;
 
         private List<MyPanel> _PanelsPodeMover = new List<MyPanel>();
+        public FormBase _Form;
 
         private Posicao[] _Aguas = new Posicao[] {
             new Posicao(2, 4),
@@ -44,21 +42,20 @@ namespace Tela.Classes
             new Posicao(2, 5),
             new Posicao(3, 5),
             new Posicao(6, 5),
-            new Posicao(7, 5),
+            new Posicao(7, 5)
         };
 
-        public Form Form { get; set; }
-        
+        public FormBase Form { get { return _Form; } }
 
         public PosicaoController Amigo { get { return _Amigo; } }
         public PosicaoController Inimigo { get { return _Inimigo; } }
         public Posicao[] Obstaculos { get { return _Aguas; } }
-        
-        public TabuleiroController(Form form)
+
+        public TabuleiroController(FormBase form, Button btnStart)
         {
-            this.Form = form;            
+            this._Form = form;
             this._Amigo.SetPosicoesPosicionamento();
-            this._PanelController = new PanelController(form, _Background);
+            this._PanelController = new PanelController(form);
             this.Form.Controls.Add(this._PanelController.PanelTabuleiroParent);
             this.Form.Controls.Add(this._PanelController.PanelPosicionarParent);
             this._Movimentos = new PosicaoMovimentosController(this);
@@ -79,16 +76,15 @@ namespace Tela.Classes
             for (var x = 0; x < Principal.Quadrados; x++)
             {
                 for (var y = 0; y < Principal.Quadrados; y++)
-                {                    
+                {
                     var newPanel = new MyPanel
                     {
                         Location = new Point(Principal.TamanhoQuadrado * x, Principal.TamanhoQuadrado * y),
-                        Size = new Size(Principal.TamanhoQuadrado, Principal.TamanhoQuadrado),                        
+                        Size = new Size(Principal.TamanhoQuadrado, Principal.TamanhoQuadrado),
                         BackgroundImageLayout = ImageLayout.Stretch,
-                        BorderStyle = BorderStyle.FixedSingle,
-                        BackColor = _Background
+                        BorderStyle = BorderStyle.FixedSingle
                     };
-                    if (!_Aguas.Any(p => p.X == x && p.Y == y))
+                    if (!_Aguas.Any(p => p.Compare(x, y)))
                     {
                         newPanel.Click += new EventHandler(Panel_Click);
                     }
@@ -96,8 +92,8 @@ namespace Tela.Classes
                     {
                         newPanel.SetAgua(true);
                     }
-                 
-                    _PanelController.AddTabuleiroPanel(newPanel, x, y);        
+
+                    _PanelController.AddTabuleiroPanel(newPanel, x, y);
                 }
             }
         }
@@ -111,26 +107,27 @@ namespace Tela.Classes
             }
             else
             {
+                AtualizarTabuleiroSmart();
+                /*
                 var panels = _PanelController.PanelsTabuleiro;
 
                 for (var x = 0; x < Principal.Quadrados; x++)
                 {
                     for (var y = 0; y < Principal.Quadrados; y++)
                     {
-                        var info = panels.Where(p => p.Posicao.X == x && p.Posicao.Y == y).FirstOrDefault();
+                        var info = panels.Where(p => p.Posicao.Compare(x, y)).FirstOrDefault();
 
                         if (info.Inimigo)
                         {
-                            info.Panel.BackgroundImage = null;
-                            info.Panel.BorderStyle = BorderStyle.None;
-                            info.Panel.BackColor = Color.Black;
+                            info.Panel.BackgroundImage = Properties.Resources.background;
+                            info.Panel.BorderStyle = BorderStyle.FixedSingle;
                         }
                         else if (info.Peca != null)
                         {
                             info.Panel.BackgroundImage = info.Peca.Image;
                             info.Panel.BorderStyle = BorderStyle.None;
                         }
-                        else if (_Aguas.Any(p => p.X == x && p.Y == y))
+                        else if (_Aguas.Any(p => p.Compare(x, y)))
                         {
                             info.Panel.BackgroundImage = Properties.Resources.backgroundblue;
                             info.Panel.BorderStyle = BorderStyle.FixedSingle;
@@ -142,6 +139,35 @@ namespace Tela.Classes
                         }
                     }
                 }
+                */
+            }
+        }
+
+        private void AtualizarTabuleiroSmart()
+        {
+            var panels = _PanelController.PanelsModificados();
+            foreach (var info in panels)
+            {
+                if (info.Inimigo)
+                {
+                    info.Panel.BackgroundImage = Properties.Resources.background;
+                    info.Panel.BorderStyle = BorderStyle.None;
+                }
+                else if (info.Peca != null)
+                {
+                    info.Panel.BackgroundImage = info.Peca.Image;
+                    info.Panel.BorderStyle = BorderStyle.None;
+                }
+                else if (_Aguas.Any(p => p.Compare(info.Posicao)))
+                {
+                    info.Panel.BackgroundImage = Properties.Resources.backgroundblue;
+                    info.Panel.BorderStyle = BorderStyle.FixedSingle;
+                }
+                else
+                {
+                    info.Panel.BackgroundImage = Properties.Resources.backgroundgreen;
+                    info.Panel.BorderStyle = BorderStyle.FixedSingle;
+                }
             }
         }
 
@@ -149,7 +175,7 @@ namespace Tela.Classes
         {
             LimparPosicionar();
             var pecas = _Amigo.APosicionar;
-            
+
             for (int i = 0; i < pecas.Count(); i++)
             {
                 var peca = pecas.ElementAt(i);
@@ -160,36 +186,15 @@ namespace Tela.Classes
                     BackgroundImage = peca.Image,
                     Location = new Point(Principal.TamanhoQuadrado * i, 0)
                 };
-                panel.Click += new EventHandler(Escolha_Click);                
+                panel.Click += new EventHandler(Escolha_Click);
 
                 _PanelController.AddPosicionarPanel(panel, peca);
             }
         }
 
-        /*private void AtualizarPosicionamento()
-        {
-            bool reposicionar = false;
-            for (int i = 0; i < _PanelController.PanelPosicionarParent.Controls.Count; i++)
-            {
-                var obj = _PanelController.PanelPosicionarParent.Controls[i];
-                if (obj is MyPanel)
-                {
-                    MyPanel panel = (MyPanel)obj;                    
-                    if (!reposicionar && !_PanelController.ExistePecaNoPosicionamento(panel))
-                    {
-                        reposicionar = true;
-                    }
-                    if (reposicionar)
-                    {
-                        MyPanel.loca
-                    }
-                }
-            }
-        }*/
-
         private void MostrarOndePosicionar()
         {
-            var posicoes = _Amigo.PosicoesPosicionamento;
+            var posicoes = _Amigo.PosicoesValidasPosicionamento;
             foreach (var posicaoValida in posicoes)
             {
                 MyPanel panel = _PanelController.GetPanelTabuleiro(posicaoValida);
@@ -199,7 +204,7 @@ namespace Tela.Classes
 
         private void EsconderOndePosicionar()
         {
-            var posicoes = _Amigo.PosicoesPosicionamento;
+            var posicoes = _Amigo.PosicoesValidasPosicionamento;
             foreach (var posicaoValida in posicoes)
             {
                 MyPanel panel = _PanelController.GetPanelTabuleiro(posicaoValida);
@@ -216,35 +221,25 @@ namespace Tela.Classes
             {
                 var panel = _PanelController.GetPanelTabuleiro(posicao);
 
-                if (posicao.Amigo)
-                {
-                    panel.BackColor = _Background;
-                }
-                else if (posicao.Inimigo)
-                {
-                    panel.BackColor = _BackgroundInimigo;
-                }
-                else if (posicao.Move)
+                if (panel.Inimigo || posicao.Move)
                 {
                     _PanelsPodeMover.Add(panel);
-                    panel.BackColor = _Background;
                     panel.Animar();
                 }
             }
         }
-        
+
         private void EsconderOndeMover(_PanelPosicionamento info)
         {
             foreach (var panel in _PanelsPodeMover)
             {
-                //panel.BackColor = _Background;
                 panel.Desanimar();
             }
         }
 
         private void LimparTabuleiro()
         {
-            _PanelController.LimparTabuleiroPanel();            
+            _PanelController.LimparTabuleiroPanel();
         }
 
         private void LimparPosicionar()
@@ -254,33 +249,33 @@ namespace Tela.Classes
 
         private void Panel_Click(object sender, EventArgs e)
         {
-            var panel = (MyPanel)sender;            
+            var panel = (MyPanel)sender;
             if (_PosicionandoPecas)
             {
-                if (_Amigo.Posicionando)
+                if (_Amigo.PosicionandoPeca)
                 {
                     var info = _PanelController.GetTabuleiroInfoByGuid(panel.Guid);
-                    var retorno = _Amigo.SetPosicaoPeca(_Amigo.PecaPosicionando, info.Posicao.X, info.Posicao.Y);
+                    var retorno = _Amigo.SetPosicaoPeca(_Amigo.PecaEmPosicionamento, info.Posicao.X, info.Posicao.Y);
                     if (retorno.Sucesso)
                     {
                         EsconderOndePosicionar();
-                        _PanelController.SetPecaTabuleiro(panel.Guid, _Amigo.PecaPosicionando);
-                        _Amigo.TerminarPosicionamento(info.Posicao);                        
+                        _PanelController.SetPecaTabuleiro(panel.Guid, _Amigo.PecaEmPosicionamento);
+                        _Amigo.TerminarPosicionamento(info.Posicao);
                         _PosicionandoPecas = _Amigo.FaltaPosicionar;
-                        
+
                         Desenhar();
                         AdicionarPosicionamento(info.Posicao, info.Peca);
                     }
                     else
                     {
-                        MessageBox.Show(retorno.Mensagem);
+                        CustomMessageBox.ShowMessageBoxAsync(retorno.Mensagem);
                     }
                 }
             }
-            else if (_MinhaRodada)
+            else if (_MinhaRodada && _PartidaIniciada)
             {
-                var infoNova = _PanelController.GetPecaMovimentoInfo(panel.Guid);                
-                if (!_Amigo.Movimentando && infoNova.Peca != null )
+                var infoNova = _PanelController.GetPecaMovimentoInfo(panel.Guid);
+                if (!_Amigo.MovimentandoPeca && infoNova.Peca != null)
                 {
                     if (infoNova.Peca.Anda && !panel.Inimigo)
                     {
@@ -311,21 +306,20 @@ namespace Tela.Classes
                         var inimigo = _Inimigo.GetPecaByPosicao(infoNova.Posicao.X, infoNova.Posicao.Y);
                         if (inimigo != null)
                         {
-                            var status = Duelo(infoAntiga.Peca, inimigo);
+                            var status = infoAntiga.Peca.Atacar(inimigo);
                             switch (status)
                             {
                                 case DueloEnum.Vitoria:
-                                    MatarInimigo(infoAntiga, infoNova, infoNova.Posicao);
+                                    MatarInimigo(infoAntiga, infoNova);
                                     break;
                                 case DueloEnum.Derrota:
-                                    MatarMinhaPeca(infoAntiga.Posicao);
+                                    MatarMinhaPeca(infoAntiga, infoNova);
                                     break;
                                 case DueloEnum.Empate:
-                                    MatarInimigo(infoAntiga, infoNova, infoNova.Posicao);
-                                    MatarMinhaPeca(infoNova.Posicao);
+                                    MatarAmbasPeca(infoAntiga, infoNova);
                                     break;
                                 case DueloEnum.VenceuJogo:
-                                    MatarInimigo(infoAntiga, infoNova, infoNova.Posicao);
+                                    MatarInimigo(infoAntiga, infoNova);
                                     DeclararVitoria();
                                     break;
                                 default://Espiao
@@ -336,14 +330,15 @@ namespace Tela.Classes
                         else
                         {
                             _PanelController.MovimentarPeca(infoAntiga, infoNova);
-                            _Amigo.TerminarMovimento(infoAntiga.Posicao);                            
+                            _Amigo.TerminarMovimento(infoAntiga.Posicao);
                             TerminarRodada(infoAntiga.Posicao, infoNova.Posicao, infoNova.Peca);
                         }
+                        _MinhaRodada = false;
                         AtualizarTabuleiro();
                     }
                     else
                     {
-                        MessageBox.Show(retorno.Mensagem);
+                        CustomMessageBox.ShowMessageBoxAsync(retorno.Mensagem);
                     }
                 }
             }
@@ -354,7 +349,7 @@ namespace Tela.Classes
             var panel = (MyPanel)sender;
             var peca = _PanelController.GetPecaPosicionamento(panel.Guid);
 
-            if (!_Amigo.Posicionando)
+            if (!_Amigo.PosicionandoPeca)
             {
                 _PosicionamentoPanel = panel;
                 _Amigo.IniciarPosicionamento(peca);
@@ -362,7 +357,7 @@ namespace Tela.Classes
                 MostrarOndePosicionar();
             }
             else
-            {                
+            {
                 _Amigo.CancelarPosicionamento();
                 _PosicionamentoPanel.BorderStyle = BorderStyle.None;
                 EsconderOndePosicionar();
@@ -379,12 +374,13 @@ namespace Tela.Classes
                 {
                     peca = _Amigo.PecasPosicionamento.ElementAt(faltantes);
                     _Amigo.IniciarPosicionamento(peca);
-                    var retorno = _Amigo.SetPosicaoPeca(_Amigo.PecaPosicionando, x, y);
+                    var retorno = _Amigo.SetPosicaoPeca(_Amigo.PecaEmPosicionamento, x, y);
                     if (retorno.Sucesso)
                     {
                         var info = _PanelController.GetPanelInfoTabuleiro(x, y);
-                        _PanelController.SetPecaTabuleiro(info.Panel.Guid, _Amigo.PecaPosicionando);
+                        _PanelController.SetPecaTabuleiro(info.Panel.Guid, _Amigo.PecaEmPosicionamento);
                         _Amigo.TerminarPosicionamento(info.Posicao);
+                        AdicionarPosicionamento(info.Posicao, info.Peca);
                         if (--faltantes < 0)
                         {
                             x = -1;
@@ -400,74 +396,29 @@ namespace Tela.Classes
 
             Desenhar();
             _PosicionandoPecas = _Amigo.FaltaPosicionar;
-            //PosicionarInimigos();
-        }
-
-        public void PosicionarInimigosTeste()
-        {
-            throw new NotImplementedException();
-
-            Peca peca;
-            int faltantes = _Inimigo.APosicionar.Count() - 1;
-            for (int y = 0; y < Principal.Quadrados; y++)
-            {
-                for (int x = Principal.Quadrados - 1; x >= 0; x--)
-                {
-                    peca = _Inimigo.PecasPosicionamento.ElementAt(faltantes);
-                    _Inimigo.IniciarPosicionamento(peca);
-                    var retorno = _Inimigo.SetPosicaoPecaInimigo(_Inimigo.PecaPosicionando, x, y);
-                    if (retorno.Sucesso)
-                    {
-                        var info = _PanelController.GetPanelInfoTabuleiro(x, y);
-                        //_PanelController.SetPecaTabuleiro(info.Panel.Guid, _Inimigo.PecaPosicionando, true);
-                        _Inimigo.TerminarPosicionamento(info.Posicao);
-                        if (--faltantes < 0)
-                        {
-                            y = 999999;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        _Inimigo.CancelarPosicionamento();
-                    }
-                }
-            }
-
-            Desenhar();
-            _PosicionandoPecas = _Inimigo.FaltaPosicionar;
         }
 
         private void AdicionarPosicionamento(Posicao posicao, Peca peca)
-        {            
-            _Serial.EnviarPosicionamento(posicao.ToEnemy(), peca);
-            if (_Amigo.APosicionar.Count() > 0)
+        {
+            _Serial.EnviarPosicionamento(posicao.Inverter(), peca);
+            if (_Inimigo.PecasPosicionadas && _Amigo.PecasPosicionadas)
             {
-                Principal.UpdateStatus("Posicionando");
-            }
-            else if (_Amigo.APosicionar.Count() > 0)
-            {
-                Principal.UpdateStatus("Aguardando outro player");
-            }
-            else
-            {
-                Principal.UpdateStatus("Aguardando inicio da partida");
+                Form.AtivarBtnIniciar();
             }
         }
 
         private void TerminarPosicionamento()
-        {            
+        {
             _Serial.TerminarPosicionamento();
         }
 
         private void EspiarPeca(_PanelPosicionamento espia, _PanelPosicionamento espiada)
         {
             _Amigo.CancelarMovimento();
-            _Serial.EspiarPeca(espia.Posicao.ToEnemy(), espiada.Posicao.ToEnemy());
-            //_MinhaRodada = false;
+            _Serial.EspiarPeca(espia.Posicao.Inverter(), espiada.Posicao.Inverter());
 
-            MessageBox.Show(string.Format(
-                "({0}){1}", 
+            CustomMessageBox.ShowMessageBoxAsync(string.Format(
+                "Informações da peça {0}: {1}",
                 espiada.Posicao.ToPosicaoTabuleiro().ToInfo(),
                 espiada.Peca.GetInfo()
             ));
@@ -475,35 +426,68 @@ namespace Tela.Classes
 
         private void TerminarRodada(Posicao posicaoAntiga, Posicao posicaoNova, Peca peca)
         {
-            _Serial.EnviarMovimento(posicaoAntiga.ToEnemy(), posicaoNova.ToEnemy(), peca);
-            //_MinhaRodada = false;
+            _Serial.EnviarMovimento(posicaoAntiga.Inverter(), posicaoNova.Inverter(), peca);
         }
 
-        public void MatarInimigo(_PanelPosicionamento infoAntiga, _PanelPosicionamento infoNova, Posicao posicao)
+        private void MatarInimigo(_PanelPosicionamento infoAmigo, _PanelPosicionamento infoInimigo)
         {
-            _PanelController.MatarPeca(posicao);
-            _PanelController.MovimentarPeca(infoAntiga, infoNova);
-            _Amigo.TerminarMovimento(infoAntiga.Posicao);
-            _Inimigo.MatarPeca(posicao);
+            _PanelController.MatarPeca(infoInimigo.Posicao);
+            _PanelController.MovimentarPeca(infoAmigo, infoInimigo);
+            _Amigo.TerminarMovimento(infoAmigo.Posicao);
+            _Inimigo.MatarPeca(infoInimigo.Posicao);
 
-            _Serial.MatarInimigo(posicao);
+            _Serial.MatarInimigo(infoInimigo.Posicao.Inverter(), infoAmigo.Posicao.Inverter());
         }
 
-        public void MatarMinhaPeca(Posicao posicao)
+        private void MatarMinhaPeca(_PanelPosicionamento infoAmigo, _PanelPosicionamento infoInimigo)
         {
             _Amigo.CancelarMovimento();
-            _PanelController.MatarPeca(posicao);
-            _Serial.MatarMinhaPeca(posicao);
+            _PanelController.MatarPeca(infoAmigo.Posicao);
+            _Serial.MatarMinhaPeca(infoAmigo.Posicao.Inverter(), infoInimigo.Posicao.Inverter());
         }
 
-        public void DeclararVitoria()
+        private void MatarAmbasPeca(_PanelPosicionamento amigo, _PanelPosicionamento inimigo)
         {
+            _PanelController.MatarPeca(amigo.Posicao);
+            _PanelController.MatarPeca(inimigo.Posicao);
+            _Amigo.MatarPeca(amigo.Posicao);
+            _Inimigo.MatarPeca(inimigo.Posicao);
+
+            _Serial.MatarAmbasPecas(amigo.Posicao.Inverter(), inimigo.Posicao.Inverter());
+        }
+
+        private void DeclararVitoria()
+        {
+            _PartidaIniciada = false;
+            _PartidaConluida = true;
+            _Vitoria = true;
             _Serial.DeclararVitoria();
+
+            CustomMessageBox.ShowMessageBoxAsync("Você venceu a partida!");
+        }
+
+        public void IniciarPartida()
+        {
+            Random random = new Random();
+            int randomNumber = random.Next(0, 100);
+            _MinhaRodada = (randomNumber % 2) == 0;
+            _PartidaIniciada = true;
+            _Serial.IniciarPartida(_MinhaRodada);
+
+            if (_MinhaRodada)
+            {
+                CustomMessageBox.ShowMessageBoxAsync("Você inicia o jogo.");
+            }
+            else
+            {
+                CustomMessageBox.ShowMessageBoxAsync("O inimigo inicia o jogo.");
+            }
         }
 
         public void SetMinhaRodada()
         {
             _MinhaRodada = true;
+            _PartidaIniciada = true;
         }
 
         public void SetSerialController(SerialController sc)
@@ -512,35 +496,45 @@ namespace Tela.Classes
             _Serial.SetEvents(this);
         }
 
-        private DueloEnum Duelo(Peca atacando, Peca defendendo)
+        #region Events
+
+        public override void UpdateStatus_Received()
         {
-            if (defendendo.Bandeira)
+            if (_PartidaConluida && _Vitoria)
             {
-                return DueloEnum.VenceuJogo;
+                Form.UpdateStatus("Vitória");
             }
-            else if (defendendo.Bomba)
+            else if (_PartidaConluida && !_Vitoria)
             {
-                return DueloEnum.Derrota;
+                Form.UpdateStatus("Derrota");
             }
-            else if (atacando.IsSpy)
+            else if (_Amigo.FaltaPosicionar)
             {
-                return DueloEnum.Espiao;
+                Form.UpdateStatus("Posicionando peças");
             }
-            else if (atacando.Forca < defendendo.Forca)
+            else if (_Amigo.PecasPosicionadas && _Inimigo.FaltaPosicionar)
             {
-                return DueloEnum.Derrota;
+                Form.UpdateStatus("Aguardando outro player");
             }
-            else if (atacando.Forca > defendendo.Forca)
+            else if (!_PartidaIniciada)
             {
-                return DueloEnum.Vitoria;
+                Form.UpdateStatus("Aguardando inicio da partida");
             }
+            else if (_MinhaRodada)
+            {
+                Form.UpdateStatus("Sua rodada");
+            }
+            else if (!_MinhaRodada)
+            {
+                Form.UpdateStatus("Rodada do inimigo");
+            }            
             else
             {
-                return DueloEnum.Empate;
-            }            
+                Form.UpdateStatus("Deu merda");
+            }
         }
 
-        public override void PosicionarInimigo(Posicao posicao, Peca peca)
+        public override void PosicionarInimigo_Received(Posicao posicao, Peca peca)
         {
             _Inimigo.IniciarPosicionamento(peca);
             var retorno = _Inimigo.SetPosicaoPecaInimigo(peca, posicao.X, posicao.Y);
@@ -548,16 +542,19 @@ namespace Tela.Classes
             {
                 _PanelController.SetPecaTabuleiroInimigo(posicao, peca);
                 _Inimigo.TerminarPosicionamento(posicao);
-
-                AtualizarTabuleiro();
             }
             else
             {
-                MessageBox.Show("Algo deu muito errado!!!1!eleven!!");
-            }            
+                CustomMessageBox.ShowMessageBoxAsync("Algo deu muito errado!!!1!eleven!!");
+            }
+
+            if (_Inimigo.PecasPosicionadas && _Amigo.PecasPosicionadas)
+            {
+                Form.AtivarBtnIniciar();
+            }
         }
 
-        public override void MovimentarInimigo(Posicao posicaoAntiga, Posicao posicaoNova, Peca peca)
+        public override void MovimentarInimigo_Received(Posicao posicaoAntiga, Posicao posicaoNova, Peca peca)
         {
             var info = _PanelController.GetPanelInfoTabuleiro(posicaoAntiga.X, posicaoAntiga.Y);
             _Inimigo.IniciarMovimento(peca);
@@ -565,38 +562,144 @@ namespace Tela.Classes
             if (retorno.Sucesso)
             {
                 _PanelController.MovimentarPecaInimigo(info, posicaoNova);
-                _Amigo.TerminarMovimento(posicaoAntiga);
-
-                AtualizarTabuleiro();
+                _Inimigo.TerminarMovimento(posicaoAntiga);
                 _MinhaRodada = true;
             }
             else
             {
-                MessageBox.Show("Algo deu muito errado!!!1!eleven!!");
-            } 
+                CustomMessageBox.ShowMessageBoxAsync("Algo deu muito errado!!!1!eleven!!");
+            }
         }
 
-        public override void MatarPecaInimiga(Posicao posicao)
+        public override void MatarPecaInimiga_Received(Posicao inimigo, Posicao amigo)
         {
-            _PanelController.MatarPeca(posicao);
-            _Inimigo.MatarPeca(posicao);
-            AtualizarTabuleiro();
+            var pecaAmiga = _Amigo.GetPecaByPosicao(amigo);
+            var pecaInimiga = _Inimigo.GetPecaByPosicao(inimigo);
+
+            _PanelController.MatarPeca(inimigo);
+            _Inimigo.MatarPeca(inimigo);
+
+            CustomMessageBox.ShowMessageBoxAsync(string.Format(
+                "Sua peça {0} matou a peça {1}({2}).",
+                pecaAmiga.Nome,
+                pecaInimiga.Nome,
+                inimigo.ToPosicaoTabuleiro().ToInfo()
+            ));
         }
 
-        public override void MatarPecaAmiga(Posicao posicao)
+        public override void MatarPecaAmiga_Received(Posicao amigo, Posicao inimigo)
         {
-            _PanelController.MatarPeca(posicao);
-            _Amigo.MatarPeca(posicao);
-            AtualizarTabuleiro();
+            var pecaAmiga = _Amigo.GetPecaByPosicao(amigo);
+            var pecaInimiga = _Inimigo.GetPecaByPosicao(inimigo);
+
+            _PanelController.MatarPeca(amigo);
+            _Amigo.MatarPeca(amigo);
+
+            var info = _PanelController.GetPanelInfoTabuleiro(inimigo);
+            _Inimigo.IniciarMovimento(info.Peca);
+            var retorno = _Inimigo.SetPosicaoPecaMovimentoInimiga(info, amigo);
+            if (retorno.Sucesso)
+            {
+                _PanelController.MovimentarPecaInimigo(info, amigo);
+                _Inimigo.TerminarMovimento(inimigo);
+            }
+            else
+            {
+                CustomMessageBox.ShowMessageBoxAsync("Algo deu muito errado!!!1!eleven!!");
+            }
+
+            CustomMessageBox.ShowMessageBoxAsync(string.Format(
+                "Sua peça {0}({1}) foi morta pela peça {2}.",
+                pecaAmiga.Nome,
+                amigo.ToPosicaoTabuleiro().ToInfo(),
+                pecaInimiga.Nome
+            ));
         }
 
-        public override void EspiarPeca(Posicao posicaoEspia, Posicao posicaoEspiada)
+        public override void EspiarPeca_Received(Posicao posicaoEspia, Posicao posicaoEspiada)
         {
-            MessageBox.Show(string.Format(
+            CustomMessageBox.ShowMessageBoxAsync(string.Format(
                 "A peca da posição {0} acabou de espiar sua peça({1}).",
                 posicaoEspia.ToPosicaoTabuleiro().ToInfo(),
                 posicaoEspiada.ToPosicaoTabuleiro().ToInfo()
             ));
         }
+
+        public override void IniciarPartida_Received(bool minhaRodada = true)
+        {
+            _MinhaRodada = minhaRodada;
+            _PartidaIniciada = true;
+            if (_MinhaRodada)
+            {
+                CustomMessageBox.ShowMessageBoxAsync("Você inicia o jogo.");
+            }
+            else
+            {
+                CustomMessageBox.ShowMessageBoxAsync("O inimigo inicia o jogo.");
+            }
+            Form.DesativarBtnIniciar();
+        }
+
+        public override void SuaVez_Received()
+        {
+            _MinhaRodada = true;
+        }
+
+        public override void DeclararDerrota_Received()
+        {
+            _PartidaIniciada = false;
+            _PartidaConluida = true;
+            _Vitoria = false;
+
+            CustomMessageBox.ShowMessageBoxAsync("Você foi derrotado!");
+        }
+
+        public override void AtualizarTabuleiro_Received()
+        {
+            AtualizarTabuleiro();
+        }
+
+        public override void MatarAmbasPeca_Received(Posicao amigo, Posicao inimigo)
+        {
+            var pecaAmiga = _Amigo.GetPecaByPosicao(amigo);
+            var pecaInimiga = _Inimigo.GetPecaByPosicao(inimigo);
+
+            _PanelController.MatarPeca(amigo);
+            _PanelController.MatarPeca(inimigo);
+            _Amigo.MatarPeca(amigo);
+            _Inimigo.MatarPeca(inimigo);
+
+            CustomMessageBox.ShowMessageBoxAsync(string.Format(
+                "O inimigo da posição {0}({1}) atacou sua peça {2}({3}) e ambas morreram ='(",
+                pecaInimiga.Nome,
+                inimigo.ToPosicaoTabuleiro().ToInfo(),
+                pecaAmiga.Nome,
+                amigo.ToPosicaoTabuleiro().ToInfo()
+            ));
+        }
+
+        public override void UpdateStatusSerial_Received()
+        {
+            if (_Serial.IsOpen && _Serial.InimigoEncontrado)
+            {
+                    Form.UpdateStatusPort("Porta Serial Aberta - Inimigo Encontrado.");
+                    _InimigoEncontrado = true;
+            }
+            else if (_Serial.IsOpen && !_Serial.InimigoEncontrado)
+            {
+                Form.UpdateStatusPort("Porta Serial Aberta - Inimigo Não Encontrado.");
+                if (_InimigoEncontrado)
+                {
+                    CustomMessageBox.ShowMessageBoxAsync("O inimigo saiu =(");
+                }
+                _InimigoEncontrado = false;                
+            }
+            else
+            {
+                Form.UpdateStatusPort("Porta Serial Fechada.");
+            }
+        }
+
+        #endregion
     }
 }

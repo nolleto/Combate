@@ -11,28 +11,27 @@ namespace Tela.Classes
     {
         private List<_PanelPosicionamento> _PanelsTabuleiro = new List<_PanelPosicionamento>();
         private List<_PanelPosicionamento> _PanelsPosicionamento = new List<_PanelPosicionamento>();
+        private List<_PanelPosicionamento> _PanelsModificados = new List<_PanelPosicionamento>();
 
         private MyPanel _PanelTabuleiroParent;
         private MyPanel _PanelPosicionarParent;
 
-        private Color _Background;
         private Form _Form;
 
         public List<_PanelPosicionamento> PanelsTabuleiro { get { return _PanelsTabuleiro; } }
         public List<_PanelPosicionamento> PanelsPosicionamento { get { return _PanelsPosicionamento; } }
-
+        
         public MyPanel PanelTabuleiroParent { get { return _PanelTabuleiroParent; } }
         public MyPanel PanelPosicionarParent { get { return _PanelPosicionarParent; } }
 
-        public PanelController(Form form, Color background)
+        public PanelController(Form form)
         {
             this._Form = form;
-            this._Background = background;
             this._PanelPosicionarParent = new MyPanel()
             {
                 AutoScroll = true,
                 Size = new Size(this._Form.Width - 15, Principal.TamanhoQuadrado + 20),
-                Location = new Point(0, (Principal.TamanhoQuadrado * Principal.Quadrados) + 50)
+                Location = new Point(0, (Principal.TamanhoQuadrado * Principal.Quadrados) + 75)
             };
             this._PanelTabuleiroParent = new MyPanel()
             {
@@ -45,12 +44,14 @@ namespace Tela.Classes
 
         public void AddTabuleiroPanel(MyPanel panel, int x, int y)
         {
-            _PanelsTabuleiro.Add(new _PanelPosicionamento()
+            var info = new _PanelPosicionamento()
             {
                 Panel = panel,
                 Posicao = new Posicao(x, y)
-            });
+            };
+            _PanelsTabuleiro.Add(info);
             _PanelTabuleiroParent.Controls.Add(panel);
+            _PanelsModificados.Add(info);
         }
 
         public void AddPosicionarPanel(MyPanel panel, Peca peca)
@@ -112,14 +113,19 @@ namespace Tela.Classes
             _PanelsPosicionamento = new List<_PanelPosicionamento>();
         }
 
+        public _PanelPosicionamento GetPanelInfoTabuleiro(Posicao posicao)
+        {
+            return GetPanelInfoTabuleiro(posicao.X, posicao.Y);
+        }
+
         public _PanelPosicionamento GetPanelInfoTabuleiro(int x, int y)
         {
-            return _PanelsTabuleiro.Where(p => p.Posicao.X == x && p.Posicao.Y == y).FirstOrDefault();
+            return _PanelsTabuleiro.Where(o => o.Posicao.Compare(x, y)).FirstOrDefault();
         }
 
         public MyPanel GetPanelTabuleiro(Posicao posicao)
         {
-            return _PanelsTabuleiro.Where(p => p.Posicao.X == posicao.X && p.Posicao.Y == posicao.Y).FirstOrDefault().Panel;
+            return _PanelsTabuleiro.Where(o => o.Posicao.Compare(posicao)).FirstOrDefault().Panel;
         }
 
         public _PanelPosicionamento GetTabuleiroInfoByGuid(Guid guid)
@@ -146,18 +152,22 @@ namespace Tela.Classes
         {
             var info = _PanelsTabuleiro.Where(p => p.Panel != null && p.Panel.Guid == guid).FirstOrDefault();
             info.Peca = peca;
+            _PanelsModificados.Add(info);
         }
 
         public void SetPecaTabuleiroInimigo(Posicao posicao, Peca peca) {
-            var info = _PanelsTabuleiro.Where(p => p.Posicao != null && p.Posicao.X == posicao.X && p.Posicao.Y == posicao.Y).FirstOrDefault();
+            var info = _PanelsTabuleiro.Where(p => p.Posicao != null && p.Posicao.Compare(posicao)).FirstOrDefault();
             info.Peca = peca;
             info.Inimigo = true;
+            _PanelsModificados.Add(info);
         }
 
         public void MovimentarPeca(_PanelPosicionamento antiga, _PanelPosicionamento nova)
         {
             nova.Peca = antiga.Peca;
             antiga.Peca = null;
+            _PanelsModificados.Add(nova);
+            _PanelsModificados.Add(antiga);
         }
 
         public void MovimentarPecaInimigo(_PanelPosicionamento antiga, Posicao posicaoNova)
@@ -167,6 +177,8 @@ namespace Tela.Classes
             nova.Inimigo = true;
             antiga.Peca = null;
             antiga.Inimigo = false;
+            _PanelsModificados.Add(nova);
+            _PanelsModificados.Add(antiga);
         }
 
         public void MatarPeca(Posicao posicao)
@@ -174,6 +186,14 @@ namespace Tela.Classes
             var info = GetPanelInfoTabuleiro(posicao.X, posicao.Y);
             info.Peca = null;
             info.Inimigo = false;
+            _PanelsModificados.Add(info);
+        }
+
+        public _PanelPosicionamento[] PanelsModificados()
+        {
+            var temp = _PanelsModificados.ToArray();
+            _PanelsModificados = new List<_PanelPosicionamento>();
+            return temp;
         }
     }
     

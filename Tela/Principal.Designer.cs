@@ -31,143 +31,91 @@ namespace Tela
         {
             this.components = new System.ComponentModel.Container();
             this.PortaSerial = new Tela.Classes.SerialController(this.components);
-            this.lblInformacoes = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
+            this.LblStatus_View = new System.Windows.Forms.Label();
+            this.BtnPosicionarTeste = new System.Windows.Forms.Button();
+            this.BtnForcarMinhaVez = new System.Windows.Forms.Button();
+            this.BtnStart_View = new System.Windows.Forms.Button();
+            this.LblPortStatus_View = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // lblInformacoes
+            // LblStatus_View
             // 
-            this.lblInformacoes.AutoSize = true;
-            this.lblInformacoes.Location = new System.Drawing.Point(9, 533);
-            this.lblInformacoes.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblInformacoes.Name = "lblInformacoes";
-            this.lblInformacoes.Size = new System.Drawing.Size(64, 13);
-            this.lblInformacoes.TabIndex = 0;
-            this.lblInformacoes.Text = "informações";
+            this.LblStatus_View.Location = new System.Drawing.Point(798, 70);
+            this.LblStatus_View.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.LblStatus_View.Name = "LblStatus_View";
+            this.LblStatus_View.Size = new System.Drawing.Size(85, 44);
+            this.LblStatus_View.TabIndex = 0;
+            this.LblStatus_View.Text = "informações";
+            this.LblStatus_View.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // button1
+            // BtnPosicionarTeste
             // 
-            this.button1.Location = new System.Drawing.Point(465, 568);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(90, 37);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Enviar";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.BtnPosicionarTeste.Location = new System.Drawing.Point(801, 235);
+            this.BtnPosicionarTeste.Name = "BtnPosicionarTeste";
+            this.BtnPosicionarTeste.Size = new System.Drawing.Size(75, 23);
+            this.BtnPosicionarTeste.TabIndex = 5;
+            this.BtnPosicionarTeste.Text = "Posicionar";
+            this.BtnPosicionarTeste.UseVisualStyleBackColor = true;
+            this.BtnPosicionarTeste.Click += new System.EventHandler(this.BtnPosicionarTeste_Click);
             // 
-            // textBox1
+            // BtnForcarMinhaVez
             // 
-            this.textBox1.Location = new System.Drawing.Point(13, 570);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(444, 20);
-            this.textBox1.TabIndex = 2;
-            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            this.BtnForcarMinhaVez.Location = new System.Drawing.Point(801, 265);
+            this.BtnForcarMinhaVez.Name = "BtnForcarMinhaVez";
+            this.BtnForcarMinhaVez.Size = new System.Drawing.Size(75, 23);
+            this.BtnForcarMinhaVez.TabIndex = 6;
+            this.BtnForcarMinhaVez.Text = "Minha Vez";
+            this.BtnForcarMinhaVez.UseVisualStyleBackColor = true;
+            this.BtnForcarMinhaVez.Click += new System.EventHandler(this.BtnForcarMinhaVez_Click);
             // 
-            // textBox2
+            // BtnStart_View
             // 
-            this.textBox2.Enabled = false;
-            this.textBox2.Location = new System.Drawing.Point(13, 612);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(542, 116);
-            this.textBox2.TabIndex = 3;
+            this.BtnStart_View.Enabled = false;
+            this.BtnStart_View.Location = new System.Drawing.Point(801, 32);
+            this.BtnStart_View.Name = "BtnStart_View";
+            this.BtnStart_View.Size = new System.Drawing.Size(75, 23);
+            this.BtnStart_View.TabIndex = 10;
+            this.BtnStart_View.Text = "Iniciar Partida";
+            this.BtnStart_View.UseVisualStyleBackColor = true;
+            this.BtnStart_View.Click += new System.EventHandler(this.BtnStart_Click);
             // 
-            // button3
+            // LblPortStatus_View
             // 
-            this.button3.Location = new System.Drawing.Point(455, 28);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 5;
-            this.button3.Text = "Posicionar";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(455, 58);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 6;
-            this.button2.Text = "Minha Vez";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(455, 130);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 37);
-            this.button4.TabIndex = 7;
-            this.button4.Text = "Mover Inimigo";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(455, 87);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 37);
-            this.button5.TabIndex = 8;
-            this.button5.Text = "Posicionar Inimigo";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(455, 173);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(75, 50);
-            this.button6.TabIndex = 9;
-            this.button6.Text = "Mover Inimigo (Ataque)";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.LblPortStatus_View.Location = new System.Drawing.Point(798, 114);
+            this.LblPortStatus_View.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.LblPortStatus_View.Name = "LblPortStatus_View";
+            this.LblPortStatus_View.Size = new System.Drawing.Size(85, 71);
+            this.LblPortStatus_View.TabIndex = 11;
+            this.LblPortStatus_View.Text = "status porta";
+            this.LblPortStatus_View.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Principal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(575, 742);
-            this.Controls.Add(this.button6);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.lblInformacoes);
+            this.ClientSize = new System.Drawing.Size(885, 883);
+            this.Controls.Add(this.LblPortStatus_View);
+            this.Controls.Add(this.BtnStart_View);
+            this.Controls.Add(this.BtnForcarMinhaVez);
+            this.Controls.Add(this.BtnPosicionarTeste);
+            this.Controls.Add(this.LblStatus_View);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "Principal";
             this.Text = "Combate";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Principal_FormClosing);
             this.Load += new System.EventHandler(this.Principal_Load);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
-        private SerialController PortaSerial;
-        private System.Windows.Forms.Label lblInformacoes;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
+        public SerialController PortaSerial;
+        private System.Windows.Forms.Label LblStatus_View;
+        private System.Windows.Forms.Button BtnPosicionarTeste;
+        private System.Windows.Forms.Button BtnForcarMinhaVez;
+        private System.Windows.Forms.Button BtnStart_View;
+        private System.Windows.Forms.Label LblPortStatus_View;
     }
 }
