@@ -50,7 +50,7 @@ namespace Tela.Classes
             public string Coluna { get; set; }
             public int Linha { get; set; }
 
-            public string ToInfo()
+            public string GetInfo()
             {
                 return Coluna + (Linha + 1);
             }

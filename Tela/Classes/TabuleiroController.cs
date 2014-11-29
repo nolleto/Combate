@@ -261,7 +261,7 @@ namespace Tela.Classes
                         EsconderOndePosicionar();
                         _PanelController.SetPecaTabuleiro(panel.Guid, _Amigo.PecaEmPosicionamento);
                         _Amigo.TerminarPosicionamento(info.Posicao);
-                        _PosicionandoPecas = _Amigo.FaltaPosicionar;
+                        _PosicionandoPecas = _Amigo.PosicionandoPecas;
 
                         Desenhar();
                         AdicionarPosicionamento(info.Posicao, info.Peca);
@@ -395,7 +395,7 @@ namespace Tela.Classes
             }
 
             Desenhar();
-            _PosicionandoPecas = _Amigo.FaltaPosicionar;
+            _PosicionandoPecas = _Amigo.PosicionandoPecas;
         }
 
         private void AdicionarPosicionamento(Posicao posicao, Peca peca)
@@ -419,7 +419,7 @@ namespace Tela.Classes
 
             CustomMessageBox.ShowMessageBoxAsync(string.Format(
                 "Informações da peça {0}: {1}",
-                espiada.Posicao.ToPosicaoTabuleiro().ToInfo(),
+                espiada.Posicao.ToPosicaoTabuleiro().GetInfo(),
                 espiada.Peca.GetInfo()
             ));
         }
@@ -437,13 +437,26 @@ namespace Tela.Classes
             _Inimigo.MatarPeca(infoInimigo.Posicao);
 
             _Serial.MatarInimigo(infoInimigo.Posicao.Inverter(), infoAmigo.Posicao.Inverter());
+
+            CustomMessageBox.ShowMessageBoxAsync(string.Format(
+                "Sua peça matou a peça {0}({1})",
+                infoInimigo.Peca.GetInfo(),
+                infoInimigo.Posicao.ToPosicaoTabuleiro().GetInfo()
+            ));
         }
 
         private void MatarMinhaPeca(_PanelPosicionamento infoAmigo, _PanelPosicionamento infoInimigo)
-        {
+        {            
             _Amigo.CancelarMovimento();
+            _Amigo.MatarPeca(infoAmigo.Posicao);
             _PanelController.MatarPeca(infoAmigo.Posicao);
             _Serial.MatarMinhaPeca(infoAmigo.Posicao.Inverter(), infoInimigo.Posicao.Inverter());
+
+            CustomMessageBox.ShowMessageBoxAsync(string.Format(
+                "Sua peça morreu ao atacar a peça {0}({1})",
+                infoInimigo.Peca.GetInfo(),
+                infoInimigo.Posicao.ToPosicaoTabuleiro().GetInfo()
+            ));
         }
 
         private void MatarAmbasPeca(_PanelPosicionamento amigo, _PanelPosicionamento inimigo)
@@ -454,6 +467,14 @@ namespace Tela.Classes
             _Inimigo.MatarPeca(inimigo.Posicao);
 
             _Serial.MatarAmbasPecas(amigo.Posicao.Inverter(), inimigo.Posicao.Inverter());
+
+            CustomMessageBox.ShowMessageBoxAsync(string.Format(
+                "Ambas as peças morreram no ataque\nVocê: {0}({1})\nInimigo: {2}({3})",
+                amigo.Peca.GetInfo(),
+                amigo.Posicao.ToPosicaoTabuleiro().GetInfo(),
+                inimigo.Peca.GetInfo(),
+                inimigo.Posicao.ToPosicaoTabuleiro().GetInfo()
+            ));
         }
 
         private void DeclararVitoria()
@@ -508,11 +529,11 @@ namespace Tela.Classes
             {
                 Form.UpdateStatus("Derrota");
             }
-            else if (_Amigo.FaltaPosicionar)
+            else if (_Amigo.PosicionandoPecas)
             {
                 Form.UpdateStatus("Posicionando peças");
             }
-            else if (_Amigo.PecasPosicionadas && _Inimigo.FaltaPosicionar)
+            else if (_Amigo.PecasPosicionadas && _Inimigo.PosicionandoPecas)
             {
                 Form.UpdateStatus("Aguardando outro player");
             }
@@ -583,7 +604,7 @@ namespace Tela.Classes
                 "Sua peça {0} matou a peça {1}({2}).",
                 pecaAmiga.Nome,
                 pecaInimiga.Nome,
-                inimigo.ToPosicaoTabuleiro().ToInfo()
+                inimigo.ToPosicaoTabuleiro().GetInfo()
             ));
         }
 
@@ -611,7 +632,7 @@ namespace Tela.Classes
             CustomMessageBox.ShowMessageBoxAsync(string.Format(
                 "Sua peça {0}({1}) foi morta pela peça {2}.",
                 pecaAmiga.Nome,
-                amigo.ToPosicaoTabuleiro().ToInfo(),
+                amigo.ToPosicaoTabuleiro().GetInfo(),
                 pecaInimiga.Nome
             ));
         }
@@ -620,8 +641,8 @@ namespace Tela.Classes
         {
             CustomMessageBox.ShowMessageBoxAsync(string.Format(
                 "A peca da posição {0} acabou de espiar sua peça({1}).",
-                posicaoEspia.ToPosicaoTabuleiro().ToInfo(),
-                posicaoEspiada.ToPosicaoTabuleiro().ToInfo()
+                posicaoEspia.ToPosicaoTabuleiro().GetInfo(),
+                posicaoEspiada.ToPosicaoTabuleiro().GetInfo()
             ));
         }
 
@@ -672,9 +693,9 @@ namespace Tela.Classes
             CustomMessageBox.ShowMessageBoxAsync(string.Format(
                 "O inimigo da posição {0}({1}) atacou sua peça {2}({3}) e ambas morreram ='(",
                 pecaInimiga.Nome,
-                inimigo.ToPosicaoTabuleiro().ToInfo(),
+                inimigo.ToPosicaoTabuleiro().GetInfo(),
                 pecaAmiga.Nome,
-                amigo.ToPosicaoTabuleiro().ToInfo()
+                amigo.ToPosicaoTabuleiro().GetInfo()
             ));
         }
 

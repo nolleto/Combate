@@ -31,7 +31,7 @@ namespace Tela.Classes
         public bool PosicionandoPeca { get { return _PecaEmPosicionamento != null; } }
         public bool MovimentandoPeca { get { return _PecaEmMovimento != null; } }
 
-        public bool FaltaPosicionar { get { return !_TudoPosicionado; } }
+        public bool PosicionandoPecas { get { return !_TudoPosicionado; } }
         public bool PecasPosicionadas { get { return _TudoPosicionado; } }
 
         public List<Posicao> PosicoesValidasPosicionamento { get { return _PosicoesValidas; } }
