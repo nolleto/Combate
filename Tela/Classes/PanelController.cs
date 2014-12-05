@@ -56,6 +56,7 @@ namespace Tela.Classes
 
         public void AddPosicionarPanel(MyPanel panel, Peca peca)
         {
+            CustomTooltip.Create(panel, peca.Nome);
             _PanelsPosicionamento.Add(new _PanelPosicionamento()
             {
                 Panel = panel,
@@ -152,6 +153,7 @@ namespace Tela.Classes
         {
             var info = _PanelsTabuleiro.Where(p => p.Panel != null && p.Panel.Guid == guid).FirstOrDefault();
             info.Peca = peca;
+            //CustomTooltip.Create(info.Panel, peca.Nome);
             _PanelsModificados.Add(info);
         }
 
@@ -166,6 +168,8 @@ namespace Tela.Classes
         {
             nova.Peca = antiga.Peca;
             antiga.Peca = null;
+            //CustomTooltip.Remove(antiga.Panel);
+            //CustomTooltip.Create(nova.Panel, nova.Peca.Nome);
             _PanelsModificados.Add(nova);
             _PanelsModificados.Add(antiga);
         }

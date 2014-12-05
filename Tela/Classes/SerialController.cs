@@ -36,7 +36,7 @@ namespace Tela.Classes
             this.StopBits = System.IO.Ports.StopBits.One;
             this.DataReceived += new SerialDataReceivedEventHandler(OnDataReceived);
 
-            this._Timer = new System.Timers.Timer(500);
+            this._Timer = new System.Timers.Timer(300);
             this._Timer.Elapsed += new System.Timers.ElapsedEventHandler(_Timer_Elapsed);
             this._Timer.Start();
 
@@ -206,17 +206,20 @@ namespace Tela.Classes
                         _Events.MatarAmbasPeca_Received(_PacoteRecebido.PosicaoAux, _PacoteRecebido.Posicao);
                         break;
                     case SerialPacoteEnum.InimigoSaiu:
-                        _InimigoEncontrado = false;
+                        //_InimigoEncontrado = false;
                         _Events.UpdateStatusSerial_Received();
                         
                         break;
                     case SerialPacoteEnum.InimigoEntrou:
-                        _InimigoEncontrado = true;
-                        _Events.UpdateStatusSerial_Received();
-                        EnviarPacote(new SerialPacote()
+                        if (!_InimigoEncontrado)
                         {
-                            Info = SerialPacoteEnum.InimigoEntrou
-                        });
+                            _InimigoEncontrado = true;
+                            _Events.UpdateStatusSerial_Received();
+                            EnviarPacote(new SerialPacote()
+                            {
+                                Info = SerialPacoteEnum.InimigoEntrou
+                            });
+                        }
 
                         break;
                     case SerialPacoteEnum.Vitoria:
@@ -262,26 +265,32 @@ namespace Tela.Classes
 
         private void _Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (_InimigoEncontrado)
+            if (IsOpen)
             {
-                if (_PacotesAEnviar.Count() > 0)
+                if (_InimigoEncontrado)
                 {
-                    SerialPacote sp = _PacotesAEnviar.ElementAt(0);
-                    _PacotesAEnviar.Remove(sp);
-                    this.Write(sp.ToJsonString());
-                    if (_Events != null)
+                    var count = _PacotesAEnviar.Count();
+                    if (count > 0 && IsOpen)
                     {
-                        _Events.UpdateStatus_Received();
+                        SerialPacote sp = _PacotesAEnviar.ElementAt(0);
+                        _PacotesAEnviar.Remove(sp);
+                        var a = sp.ToJsonString();
+                        Console.Write(count + " - " + a + "\n");
+                        this.Write(a);
+                        if (_Events != null)
+                        {
+                            _Events.UpdateStatus_Received();
+                        }
                     }
                 }
-            }
-            else if (IsOpen)
-            {
-                var sp = new SerialPacote()
+                else
                 {
-                    Info = SerialPacoteEnum.InimigoEntrou
-                };
-                this.Write(sp.ToJsonString());
+                    var sp = new SerialPacote()
+                    {
+                        Info = SerialPacoteEnum.InimigoEntrou
+                    };
+                    this.Write(sp.ToJsonString());
+                }
             }
         }
     }

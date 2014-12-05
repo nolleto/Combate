@@ -22,6 +22,8 @@ namespace Tela.Classes
             var posicoesAmigo = _Tabulerio.Amigo.Posicoes.Select(o => o.Posicao).ToArray();
             var obstaculos = _Tabulerio.Obstaculos;
 
+            Console.Write(string.Format("Amigo: {0} Inimigo: {1}\n", posicoesAmigo.Count(), posicoesInimigo.Count()));
+
             if (info.Peca.PassoLargo)
             {
                 bool cima = true, 

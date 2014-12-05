@@ -449,6 +449,7 @@ namespace Tela.Classes
         {            
             _Amigo.CancelarMovimento();
             _Amigo.MatarPeca(infoAmigo.Posicao);
+            _Amigo.MatarPeca(infoInimigo.Posicao);
             _PanelController.MatarPeca(infoAmigo.Posicao);
             _Serial.MatarMinhaPeca(infoAmigo.Posicao.Inverter(), infoInimigo.Posicao.Inverter());
 
@@ -461,18 +462,23 @@ namespace Tela.Classes
 
         private void MatarAmbasPeca(_PanelPosicionamento amigo, _PanelPosicionamento inimigo)
         {
+            var pecaAmiga = _Amigo.GetPecaByPosicao(amigo.Posicao);
+            var pecaInimiga = _Inimigo.GetPecaByPosicao(inimigo.Posicao);
+
             _PanelController.MatarPeca(amigo.Posicao);
             _PanelController.MatarPeca(inimigo.Posicao);
+            _Amigo.CancelarMovimento();
             _Amigo.MatarPeca(amigo.Posicao);
+            _Amigo.MatarPeca(inimigo.Posicao);
             _Inimigo.MatarPeca(inimigo.Posicao);
 
             _Serial.MatarAmbasPecas(amigo.Posicao.Inverter(), inimigo.Posicao.Inverter());
 
             CustomMessageBox.ShowMessageBoxAsync(string.Format(
                 "Ambas as peças morreram no ataque\nVocê: {0}({1})\nInimigo: {2}({3})",
-                amigo.Peca.GetInfo(),
+                pecaAmiga.GetInfo(),
                 amigo.Posicao.ToPosicaoTabuleiro().GetInfo(),
-                inimigo.Peca.GetInfo(),
+                pecaInimiga.GetInfo(),
                 inimigo.Posicao.ToPosicaoTabuleiro().GetInfo()
             ));
         }

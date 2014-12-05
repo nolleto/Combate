@@ -76,3 +76,14 @@ C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.csprojResolveAss
 C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.Principal.resources
 C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.Properties.Resources.resources
 C:\Users\0093362\Desktop\Combate-master\Tela\obj\x86\Debug\Tela.csproj.GenerateResource.Cache
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.exe
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.pdb
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\bin\Debug\branco.jpg
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\bin\Debug\Tela.exe
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\bin\Debug\Newtonsoft.Json.dll
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\bin\Debug\Newtonsoft.Json.xml
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.csprojResolveAssemblyReference.cache
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.Principal.resources
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.Properties.Resources.resources
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\obj\x86\Debug\Tela.csproj.GenerateResource.Cache
+\\csi-217\c$\Users\0094078\Downloads\Combate-master\Tela\bin\Debug\Tela.pdb

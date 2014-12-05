@@ -21,8 +21,15 @@ namespace Tela.Classes
         {
             if (this.InvokeRequired)
             {
-                _UpdateStatusCallback d = new _UpdateStatusCallback(UpdateStatus);
-                this.Invoke(d, new object[] { status });
+                try
+                {
+                    _UpdateStatusCallback d = new _UpdateStatusCallback(UpdateStatus);
+                    this.Invoke(d, new object[] { status });
+                }
+                catch (Exception)
+                {
+
+                }                
             }
             else
             {
